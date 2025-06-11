@@ -18,14 +18,18 @@ const buildAndThrowNewError = (error) => {
         return new CustomError("¡Ups! Error en la solicitud.", error.code, 500, error);
     }
 }
-export const axiosInstance = (API_BASE) => axios.create({
-    baseURL: API_BASE,
-});
+let axiosInstanceValue = null;
+export const axiosInstance = (API_BASE) => {
+    axiosInstanceValue = axios.create({
+        baseURL: API_BASE,
+    });
+    return axiosInstanceValue;
+}
 // object to store ongoing requests cancel tokens
 const pendingRequests = new Map();
 // next we set up the Request Interceptor, this logic triggers
 // before each request that we send
-axiosInstance.interceptors.request.use(config => {
+axiosInstanceValue.interceptors.request.use(config => {
     // generate an identifier for each request
     const requestIdentifier = `${config.url}_${config.method}`;
     // check if there is already a pending request with the same identifier
@@ -51,7 +55,7 @@ axiosInstance.interceptors.request.use(config => {
 });
 // here we set up the Response Interceptor, this logic triggers
 // before each response from the server comes
-axiosInstance.interceptors.response.use(response => {
+axiosInstanceValue.interceptors.response.use(response => {
     // remove completed request from pending map
     const requestIdentifier = `${response.config.url}_${response.config.method}`;
     pendingRequests.delete(requestIdentifier);
