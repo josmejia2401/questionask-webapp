@@ -18,12 +18,12 @@ const buildAndThrowNewError = (error) => {
         return new CustomError("¡Ups! Error en la solicitud.", error.code, 500, error);
     }
 }
-let axiosInstanceValue = null;
+
 // object to store ongoing requests cancel tokens
 const pendingRequests = new Map();
 
 export const axiosInstance = (API_BASE) => {
-    axiosInstanceValue = axios.create({
+    const axiosInstanceValue = axios.create({
         baseURL: API_BASE,
     });
     // next we set up the Request Interceptor, this logic triggers
