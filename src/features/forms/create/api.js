@@ -3,7 +3,7 @@ import { axiosInstance } from '../../../services/fetch';
 
 export const create = async (payload) => {
     try {
-        const res = await axiosInstance("https://questionask-forms-ms.onrender.com").post(`/v1/api/forms`, payload, {
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").post(`/v1/api/forms`, payload, {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": '*',
@@ -20,7 +20,7 @@ export const create = async (payload) => {
 
 export const updateById = async (id, payload) => {
     try {
-        const res = await axiosInstance("https://questionask-forms-ms.onrender.com").put(`/v1/api/forms/${id}`, payload, {
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").put(`/v1/api/forms/${id}`, payload, {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": '*',
@@ -37,7 +37,7 @@ export const updateById = async (id, payload) => {
 
 export const uploadFile = async (id, formData) => {
     try {
-        const res = await axiosInstance("https://questionask-forms-ms.onrender.com").post(`/v1/api/files/forms/${id}/upload`, formData, {
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").post(`/v1/api/files/forms/${id}/upload`, formData, {
             headers: {},
         });
         return res.data;
@@ -48,7 +48,7 @@ export const uploadFile = async (id, formData) => {
 
 export const downloadFile = async (formId, filename) => {
     try {
-        const res = await axiosInstance("https://questionask-forms-ms.onrender.com").get(`/v1/api/files/forms/${formId}/images/${filename}`, {
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").get(`/v1/api/files/forms/${formId}/images/${filename}`, {
             responseType: 'blob',
             headers: {},
         });

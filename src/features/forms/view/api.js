@@ -2,7 +2,7 @@ import { axiosInstance } from '../../../services/fetch';
 
 export const findAll = async () => {
     try {
-        const res = await axiosInstance("https://questionask-forms-ms.onrender.com").get(`/v1/api/forms`);
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").get(`/v1/api/forms`);
         return res.data;
     } catch (error) {
         throw error;
@@ -11,7 +11,7 @@ export const findAll = async () => {
 
 export const deleteById = async (id) => {
     try {
-        const res = await axiosInstance("https://questionask-forms-ms.onrender.com").delete(`/v1/api/forms/${id}`);
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").delete(`/v1/api/forms/${id}`);
         console.log("response", res.data);
         return res.data;
     } catch (error) {
@@ -22,7 +22,7 @@ export const deleteById = async (id) => {
 
 export const updateById = async (id, payload) => {
     try {
-        const res = await axiosInstance("https://questionask-forms-ms.onrender.com").put(`/v1/api/forms/${id}`, payload);
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").put(`/v1/api/forms/${id}`, payload);
         return res.data;
     } catch (error) {
         throw error;
