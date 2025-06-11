@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { create, updateById, uploadFile } from "./api";
+import { create, updateById } from "./api";
 import QuestionItem from './question-item';
 import {
     CloudArrowUpIcon,
@@ -15,83 +15,183 @@ const EditFormPage = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
 
-    const handleSave = async (isPublic) => {
+    const trackError = (error, context) => {
+        console.error(context, error);
+    };
+
+    const hideError = (e) => {
+        setError(null);
+        setSuccess(null);
+    }
+
+    const handleSave = async () => {
         try {
+            // Reset estados
             setError(null);
             setSuccess(null);
             setLoading(true);
 
-            const filesToSaved = [];
+            // Validación básica de formData
+            if (!formData || !formData.questions) {
+                throw new Error('Datos del formulario incompletos');
+            }
 
-            // Crea copia inmutable de formData, transformando las imágenes con map
-            const updatedQuestions = (formData.questions || []).map(question => ({
-                ...question,
-                options: (question.options || []).map(option => ({
-                    ...option,
-                    images: (option.images || []).map(image => {
-                        if (image instanceof File) {
-                            filesToSaved.push(image);
-                            return { imagePath: image.name };
-                        }
-                        filesToSaved.push({ file: image.path, imagePath: image.imagePath });
-                        return { imagePath: image.imagePath };
-                    })
-                }))
-            }));
+            // Procesamiento de imágenes y preparación de datos
+            const { updatedQuestions, filesToUpload } = processFormQuestions(formData.questions);
 
-            // Nueva estructura de datos lista para guardar
-            const dataToSave = {
+            // Estructura final para enviar al backend
+            const payload = {
                 ...formData,
                 questions: updatedQuestions,
-                isPublic: isPublic
+                isPublic: false,
+                createdAt: new Date().toISOString() // Metadata útil
             };
 
-            console.log(dataToSave);
-            const response = await create(dataToSave);
-
-            formData.id = response.data.id;
-            setFormData(formData);
-
-            if (response.code === 201) {
-                if (filesToSaved.length > 0) {
-                    const form = new FormData();
-
-                    // Procesar todos los archivos en paralelo
-                    for (const file of filesToSaved) {
-                        if (file instanceof File) {
-                            // File cargado desde un input file
-                            form.append("images", file, file.name);
-                        } else {
-                            const response = await fetch(file.file);
-                            if (!response.ok) throw new Error(`No se pudo descargar: ${file.imagePath}`);
-                            const blob = await response.blob();
-                            const fileName = file.imagePath || "archivo.bin";
-                            const fileFromBlob = new File([blob], fileName, { type: blob.type });
-                            form.append("images", fileFromBlob);
-                        }
-                    }
-
-                    // 🧪 Debug útil
-                    for (let pair of form.entries()) {
-                        console.log('FormData:', pair[0], pair[1]);
-                    }
-
-                    await uploadFile(response.data.id, form);
-
-                }
-                setSuccess(response.message);
-            } else {
-                throw new Error(response.message || 'Error al guardar');
+            // Debug (solo en desarrollo)
+            if (process.env.NODE_ENV === 'development') {
+                console.debug('Payload a enviar:', payload);
             }
-        } catch (err) {
-            setError(err.message || 'Error al guardar los cambios');
+
+            // Llamada a la API
+            const response = await create(payload);
+
+            if (response.code !== 201) {
+                throw new Error(response.message || 'Error en la respuesta del servidor');
+            }
+
+            // Actualización del estado con respuesta
+            setFormData(prev => ({
+                ...prev,
+                id: response.data.id,
+                isPublic: false,
+            }));
+
+            setSuccess(response.message || 'Formulario guardado exitosamente');
+
+            if (filesToUpload.length > 0) {
+                await uploadFiles(filesToUpload, response.data.id);
+            }
+        } catch (error) {
+            handleSaveError(error);
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * Procesa las preguntas y extrae archivos para subir.
+     */
+    const processFormQuestions = (questions) => {
+        const filesToUpload = [];
+        const updatedQuestions = questions.map(question => ({
+            ...question,
+            options: question.options?.map(option => ({
+                ...option,
+                images: option.images?.map(image => {
+                    if (image instanceof File) {
+                        filesToUpload.push({
+                            file: image,
+                            questionId: question.id,
+                            optionId: option.id
+                        });
+                        return { imagePath: `${image.name}` };
+                    }
+                    return image;
+                })
+            }))
+        }));
+
+        return { updatedQuestions, filesToUpload };
+    };
+
+    /**
+     * Manejo centralizado de errores.
+     */
+    const handleSaveError = (error) => {
+        const errorMessage = error.response?.data?.message
+            || error.message
+            || 'Error al guardar el formulario';
+
+        console.error('Error en handleSave:', error);
+        setError(errorMessage);
+
+        // Opcional: Notificación a servicios de monitoreo (Sentry, etc.)
+        if (process.env.NODE_ENV === 'production') {
+            trackError(error);
+        }
+    };
+
+    /**
+     * Ejemplo de subida de archivos (implementación separada).
+     */
+    const uploadFiles = async (files, formId) => {
+        /*try {
+            await Promise.all(
+                files.map(file =>
+                    uploadFile(file.file, {
+                        formId,
+                        questionId: file.questionId,
+                        optionId: file.optionId
+                    })
+                )
+            );
+        } catch (uploadError) {
+            console.warn('Error al subir archivos:', uploadError);
+            // Opcional: Reintentos o manejo específico
+        }*/
+    };
+
     const onPublish = async () => {
-        await handleSave(true);
+        try {
+            // Reset estados
+            setError(null);
+            setSuccess(null);
+            setLoading(true);
+
+            // Validación básica de formData
+            if (!formData || !formData.questions) {
+                throw new Error('Datos del formulario incompletos');
+            }
+
+            // Procesamiento de imágenes y preparación de datos
+            const { updatedQuestions, filesToUpload } = processFormQuestions(formData.questions);
+
+            // Estructura final para enviar al backend
+            const payload = {
+                ...formData,
+                questions: updatedQuestions,
+                isPublic: true,
+            };
+
+            // Debug (solo en desarrollo)
+            if (process.env.NODE_ENV === 'development') {
+                console.debug('Payload a enviar:', payload);
+            }
+
+            // Llamada a la API
+            const response = await updateById(payload.id, payload);
+
+            if (response.code !== 200) {
+                throw new Error(response.message || 'Error en la respuesta del servidor');
+            }
+
+            // Actualización del estado con respuesta
+            setFormData(prev => ({
+                ...prev,
+                id: response.data.id,
+                isPublic: true,
+            }));
+
+            setSuccess(response.message || 'Formulario guardado exitosamente');
+
+            if (filesToUpload.length > 0) {
+                await uploadFiles(filesToUpload, response.data.id);
+            }
+        } catch (error) {
+            handleSaveError(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const addQuestion = () => {
@@ -133,8 +233,8 @@ const EditFormPage = () => {
             <div className="bg-red-50 border-l-4 border-red-500 p-4">
                 <p className="text-sm text-red-700">
                     Error al cargar el formulario: {error}
-                    <button onClick={handleSave} className="ml-2 underline">
-                        Reintentar
+                    <button onClick={hideError} className="ml-2 underline">
+                        Ocultar
                     </button>
                 </p>
             </div>
@@ -173,6 +273,16 @@ const EditFormPage = () => {
                 </ButtonComponent>}
             </div>
 
+
+            {success && <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+                <p className="text-sm text-green-700">
+                    {success}
+                    <button onClick={() => window.location.reload()} className="ml-2 underline">
+                        Refrescar
+                    </button>
+                </p>
+            </div>}
+
             <div className="bg-white p-4 border rounded shadow">
                 <div className="flex justify-between items-start">
                     <div className="w-full">
@@ -202,15 +312,6 @@ const EditFormPage = () => {
                     </span>
                 </div>
             </div>
-
-            {success && <div className="bg-green-50 border-l-4 border-green-500 p-4">
-                <p className="text-sm text-green-700">
-                    {success}
-                    <button onClick={() => window.location.reload()} className="ml-2 underline">
-                        Refrescar
-                    </button>
-                </p>
-            </div>}
 
             <div className="mt-6 space-y-4">
                 {formData.questions && formData.questions.map((question, index) => (

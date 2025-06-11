@@ -3,15 +3,7 @@ import { axiosInstance } from '../../../services/fetch';
 
 export const create = async (payload) => {
     try {
-        const res = await axiosInstance("https://questionask-form-ms.onrender.com").post(`/v1/api/forms`, payload, {
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": '*',
-                "Access-Control-Allow-Methods": "*",
-                "Access-Control-Allow-Headers": "*",
-                "access-control-allow-methods": "*"
-            },
-        });
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").post(`/v1/api/forms`, payload);
         return res.data;
     } catch (error) {
         throw error;
@@ -20,40 +12,9 @@ export const create = async (payload) => {
 
 export const updateById = async (id, payload) => {
     try {
-        const res = await axiosInstance("https://questionask-form-ms.onrender.com").put(`/v1/api/forms/${id}`, payload, {
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": '*',
-                "Access-Control-Allow-Methods": "*",
-                "Access-Control-Allow-Headers": "*",
-                "access-control-allow-methods": "*"
-            },
-        });
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").put(`/v1/api/forms/${id}`, payload);
         return res.data;
     } catch (error) {
         throw error;
-    }
-}
-
-export const uploadFile = async (id, formData) => {
-    try {
-        const res = await axiosInstance("https://questionask-form-ms.onrender.com").post(`/v1/api/files/forms/${id}/upload`, formData, {
-            headers: {},
-        });
-        return res.data;
-    } catch (error) {
-        throw error;
-    }
-}
-
-export const downloadFile = async (formId, filename) => {
-    try {
-        const res = await axiosInstance("https://questionask-form-ms.onrender.com").get(`/v1/api/files/forms/${formId}/images/${filename}`, {
-            responseType: 'blob',
-            headers: {},
-        });
-        return URL.createObjectURL(res.data);
-    } catch (error) {
-        return null;
     }
 }

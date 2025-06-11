@@ -25,7 +25,11 @@ class ButtonComponent extends React.Component {
 
     return (
       <button
-        className={`btn btn-secondary flex items-center gap-2 ${className}`}
+        className={`
+    btn btn-secondary flex items-center gap-2
+    ${disabled || loading ? 'opacity-50 cursor-not-allowed' : ''}
+    ${className}
+  `}
         type={type}
         disabled={disabled || loading}
         {...props}
