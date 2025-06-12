@@ -17,6 +17,7 @@ const EditProfilePage = lazy(() => import('../features/profile/edit'));
 const CreateFormPage = lazy(() => import('../features/forms/create'));
 const ViewFormPage = lazy(() => import('../features/forms/view'));
 const EditFormPage = lazy(() => import('../features/forms/edit'));
+const FormResponsePage = lazy(() => import('../features/forms/form-responses'));
 
 const routes = [
   {
@@ -74,6 +75,14 @@ const routes = [
     element: (
       <PrivateRoute>
         <MainLayout><EditFormPage /></MainLayout>
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: '/forms/responses',
+    element: (
+      <PrivateRoute>
+        <MainLayout><FormResponsePage /></MainLayout>
       </PrivateRoute>
     ),
   },

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import QuestionView from './question-view';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/solid';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import ButtonComponent from "../../../components/button-secondary";
 import { Link } from "react-router-dom";
 
@@ -52,6 +53,12 @@ const FormCard = ({ form, onDelete }) => {
               className="p-1 text-gray-400 hover:text-blue-500 transition-colors opacity-0 group-hover:opacity-100"
               aria-label="Eliminar formulario">
               <PencilSquareIcon className="w-5 h-5" aria-hidden="true"></PencilSquareIcon>
+            </Link>
+            <Link
+              to={`/forms/responses?id=${form.id}`}
+              className="p-1 text-gray-400 hover:text-blue-500 transition-colors opacity-0 group-hover:opacity-100"
+              aria-label="Respuestas">
+              <ChatBubbleLeftEllipsisIcon className="w-5 h-5" aria-hidden="true"></ChatBubbleLeftEllipsisIcon>
             </Link>
             <span className={`px-2 py-1 text-xs rounded ${form.isPublic
               ? 'bg-green-100 text-green-800'
