@@ -8,6 +8,8 @@ import {
     ArrowPathIcon
 } from '@heroicons/react/24/solid';
 import ButtonComponent from '../../../components/button-secondary';
+import InputTitle from '../../../components/input-title';
+import TextareaTitle from '../../../components/input-title';
 
 const EditFormPage = () => {
     const [formData, setFormData] = useState({});
@@ -223,7 +225,26 @@ const EditFormPage = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <ArrowPathIcon className="w-10 h-10 animate-spin text-blue-500" />
+                <svg
+                    className="animate-spin h-10 w-10 text-indigo-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                >
+                    <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                    ></circle>
+                    <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                </svg>
             </div>
         );
     }
@@ -286,18 +307,26 @@ const EditFormPage = () => {
             <div className="bg-white p-4 border rounded shadow">
                 <div className="flex justify-between items-start">
                     <div className="w-full">
-                        <input
+                        <InputTitle
                             type="text"
+                            name="title"
+                            id="title"
                             placeholder="Título del formulario"
+                            maxLength={80}
+                            required={true}
                             value={formData.title || ''}
                             onChange={(e) =>
                                 setFormData({ ...formData, title: e.target.value })
                             }
                             className="text-xl font-semibold text-gray-800 w-full border-b focus:outline-none focus:border-indigo-500"
                         />
-                        <textarea
+                        <TextareaTitle
+                            type="text"
+                            name="description"
+                            id="description"
                             placeholder="Descripción del formulario"
                             value={formData.description || ''}
+                            maxLength={300}
                             onChange={(e) =>
                                 setFormData({ ...formData, description: e.target.value })
                             }
