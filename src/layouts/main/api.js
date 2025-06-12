@@ -3,16 +3,10 @@ import { AuthStore } from '../../store/index';
 
 export const logout = async () => {
     try {
-        const res = await axiosInstance.post(`/api/v1/auth/logout`, {}, {
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": '*'
-            },
-        });
+        const res = await axiosInstance("https://questionask-auth-ms.onrender.com").post(`/v1/api/auth/logout`);
         AuthStore.logout();
         return res.data;
     } catch (error) {
         AuthStore.logout();
-        throw error;
     }
 }

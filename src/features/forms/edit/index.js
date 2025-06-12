@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { updateById, findById } from "./api";
 import QuestionItem from '../components/question-item';
 import {
@@ -9,11 +9,13 @@ import {
 } from '@heroicons/react/24/solid';
 import ButtonComponent from '../../../components/button-secondary';
 import { useLocation } from 'react-router-dom';
+import InputTitle from '../../../components/input-title';
+import TextareaTitle from '../../../components/input-title';
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
 const EditFormPage = () => {
-    const [id, setId] = useState(useQuery().get('id'));
+    const [id] = useState(useQuery().get('id'));
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -28,12 +30,7 @@ const EditFormPage = () => {
         setSuccess(null);
     }
 
-    useEffect(() => {
-        fetchForm();
-    }, [id]);
-
-
-    const fetchForm = async () => {
+    const fetchForm = useCallback(async () => {
         try {
             setError(null);
             setSuccess(null);
@@ -42,15 +39,28 @@ const EditFormPage = () => {
             if (json.code !== 200) {
                 throw new Error(json.message || 'Formulario no encontrado');
             }
-            let formData = json.data;
-            console.log("formData", formData);
-            setFormData(formData);
+            const originalForm = json.data;
+            const sortedForm = {
+                ...originalForm,
+                questions: originalForm.questions
+                    .slice()
+                    .sort((a, b) => a.order - b.order)
+            };
+            console.log("formData", sortedForm);
+            setFormData(sortedForm);
         } catch (err) {
             setError(err.message || 'Error al cargar el formulario');
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        fetchForm();
+    }, [fetchForm]);
+
+
+
 
     const handleSave = async () => {
         try {
@@ -312,18 +322,26 @@ const EditFormPage = () => {
             <div className="bg-white p-4 border rounded shadow">
                 <div className="flex justify-between items-start">
                     <div className="w-full">
-                        <input
+                        <InputTitle
                             type="text"
+                            name="title"
+                            id="title"
                             placeholder="Título del formulario"
+                            maxLength={80}
+                            required={true}
                             value={formData.title || ''}
                             onChange={(e) =>
                                 setFormData({ ...formData, title: e.target.value })
                             }
                             className="text-xl font-semibold text-gray-800 w-full border-b focus:outline-none focus:border-indigo-500"
                         />
-                        <textarea
+                        <TextareaTitle
+                            type="text"
+                            name="description"
+                            id="description"
                             placeholder="Descripción del formulario"
                             value={formData.description || ''}
+                            maxLength={300}
                             onChange={(e) =>
                                 setFormData({ ...formData, description: e.target.value })
                             }

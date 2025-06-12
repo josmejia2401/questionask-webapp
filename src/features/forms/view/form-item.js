@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import QuestionView from './question-view';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/solid';
-
 import ButtonComponent from "../../../components/button-secondary";
 import { Link } from "react-router-dom";
 
@@ -9,11 +8,6 @@ const FormCard = ({ form, onDelete }) => {
   const [loading, setLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [questionsExpanded, setQuestionsExpanded] = useState(false);
-
-  const handleEdit = (e, id) => {
-    e.stopPropagation();
-    setShowDeleteDialog(true);
-  };
 
   const handleDelete = (e) => {
     e.stopPropagation();
@@ -93,7 +87,8 @@ const FormCard = ({ form, onDelete }) => {
           className={`space-y-3 transition-all duration-300 ${questionsExpanded ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
         >
           {form.questions
-            .sort((a, b) => a.order - b.order)
+            .slice() // evita mutar el arreglo original
+            .sort((a, b) => a.order - b.order) // orden ascendente
             .map((question) => (
               <QuestionView key={question.id} question={question} />
             ))}

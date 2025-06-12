@@ -17,6 +17,7 @@ class Layout extends React.Component {
     super(props);
     this.state = {
       preloader: true,
+      loadingItem: null,
       user: {
         name: 'Tom Cook',
         email: 'tom@example.com',
@@ -36,15 +37,15 @@ class Layout extends React.Component {
           current: false,
           children: [
             {
-              name: 'Ver',
+              name: 'Mis Formularios',
               href: '/forms/viewer',
               current: false,
             },
             {
-              name: 'Crear',
+              name: 'Crear uno Nuevo',
               href: '/forms/create',
               current: false,
-            },
+            }
           ]
         },
         {
@@ -63,9 +64,8 @@ class Layout extends React.Component {
       userNavigation: [
         { name: 'Mi cuenta', href: '#' },
         { name: 'Opciones', href: '#' },
-        { name: 'Salir', href: '#' },
+        { name: 'Salir', href: '#', onClick: logout },
       ],
-      // Estado para controlar los submenús en mobile
       mobileSubmenusOpen: {},
     };
     this.checkDocumentState = this.checkDocumentState.bind(this);
@@ -228,8 +228,22 @@ class Layout extends React.Component {
                             <a
                               href={item.href}
                               className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                this.setState({
+                                  loadingItem: item.name
+                                });
+                                try {
+                                  await item.onClick?.();
+                                } finally {
+                                  this.setState({
+                                    loadingItem: null
+                                  });
+                                  window.location.href = item.href;
+                                }
+                              }}
                             >
-                              {item.name}
+                              {this.state.loadingItem === item.name ? 'Cargando...' : item.name}
                             </a>
                           </MenuItem>
                         ))}
