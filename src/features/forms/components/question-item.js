@@ -1,17 +1,39 @@
 import React from 'react';
 import { TrashIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import Select from '../../../components/select';
+import Checkbox from '../../../components/checkbox';
+import Input from '../../../components/input';
 
-const typeLabels = {
-  short: 'Respuesta corta',
-  long: 'Respuesta larga',
-  multiple: 'Varias opciones',
-  checkbox: 'Casillas',
-  //fileupload: 'Cargar archivos',
-  //filedownload: 'Descargar archivos',
-  rating: 'Calificación',
-  date: 'Fecha',
-  time: "Hora"
-};
+const typeValues = [
+  {
+    id: "short",
+    name: "Respuesta corta"
+  },
+  {
+    id: "long",
+    name: "Respuesta larga"
+  },
+  {
+    id: "multiple",
+    name: "Varias opciones"
+  },
+  {
+    id: "checkbox",
+    name: "Casillas"
+  },
+  {
+    id: "rating",
+    name: "Calificación"
+  },
+  {
+    id: "date",
+    name: "Fecha"
+  },
+  {
+    id: "time",
+    name: "Hora"
+  }
+];
 
 const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
   const handleChange = (e) => {
@@ -30,10 +52,13 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
       </div>
 
       <div>
-        <label className="block font-medium mb-1">Texto de la pregunta</label>
-        <input
+        <Input
+          label="Texto de la pregunta"
           type="text"
           name="questionText"
+          id="questionText"
+          maxLength={255}
+          required={true}
           value={question.questionText}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2"
@@ -41,19 +66,16 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
       </div>
 
       <div>
-        <label className="block font-medium mb-1">Tipo de respuesta</label>
-        <select
+        <Select
+          id="type"
           name="type"
+          label="Tipo de respuesta"
           value={question.type}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2"
-        >
-          {Object.entries(typeLabels).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+          disabled={false}
+          options={typeValues}
+          required={true}
+        />
       </div>
 
       {/* Tipo: Respuesta corta */}
@@ -63,27 +85,20 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
             type="text"
             value={''}
             disabled
-            onChange={(e) =>
-              updateQuestion(index, { ...question, answer: e.target.value })
-            }
+            onChange={(e) => updateQuestion(index, { ...question, options: [] })}
             placeholder="Respuesta del usuario"
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
           />
 
           {/* Checkbox: obligatorio */}
           <div className="flex items-center gap-2">
-            <input
+            <Checkbox
+              label="¿Es obligatorio responder esta pregunta?"
               type="checkbox"
               id={`required-${index}`}
               checked={question.required || false}
-              onChange={(e) =>
-                updateQuestion(index, { ...question, required: e.target.checked })
-              }
-              className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+              onChange={(e) => updateQuestion(index, { ...question, required: e.target.checked, options: [] })}
             />
-            <label htmlFor={`required-${index}`} className="text-sm text-gray-700">
-              ¿Es obligatorio responder esta pregunta?
-            </label>
           </div>
         </div>
       )}
@@ -94,9 +109,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
         <div className="space-y-3">
           <textarea
             value={question.answer || ''}
-            onChange={(e) =>
-              updateQuestion(index, { ...question, answer: e.target.value })
-            }
+            onChange={(e) => updateQuestion(index, { ...question, options: [] })}
             disabled
             placeholder="Respuesta larga del usuario"
             rows={3}
@@ -110,7 +123,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
               id={`required-long-${index}`}
               checked={question.required || false}
               onChange={(e) =>
-                updateQuestion(index, { ...question, required: e.target.checked })
+                updateQuestion(index, { ...question, required: e.target.checked, options: [] })
               }
               className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
             />
@@ -162,7 +175,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
                 </div>
 
                 {/* Input para subir imágenes */}
-                <div className="flex items-center gap-3 ml-7">
+                {/*<div className="flex items-center gap-3 ml-7">
                   <label className="text-sm text-gray-600 flex items-center gap-1 cursor-pointer">
                     <PhotoIcon className="h-4 w-4" />
                     Subir imagen
@@ -185,7 +198,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
                     />
                   </label>
 
-                  {/* Preview de imágenes */}
+                  
                   {option.images && option.images.length > 0 && (
                     <div className="flex gap-2 mt-2">
                       {option.images.map((img, i) => (
@@ -198,7 +211,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
                       ))}
                     </div>
                   )}
-                </div>
+                </div>*/}
               </div>
             ))}
 
@@ -270,7 +283,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
                 </div>
 
                 {/* Input para imagen */}
-                <div className="flex items-center gap-3 ml-7">
+                {/*<div className="flex items-center gap-3 ml-7">
                   <label className="text-sm text-gray-600 flex items-center gap-1 cursor-pointer">
                     <PhotoIcon className="h-4 w-4" />
                     Subir imagen
@@ -292,7 +305,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
                     />
                   </label>
 
-                  {/* Preview simple */}
+                  
                   {option.images && option.images.length > 0 && (
                     <div className="flex gap-2 mt-2">
                       {option.images.map((img, i) => (
@@ -305,7 +318,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
                       ))}
                     </div>
                   )}
-                </div>
+                </div>*/}
               </div>
             ))}
 
@@ -434,7 +447,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
               <button
                 key={star}
                 type="button"
-                onClick={() => updateQuestion(index, { ...question, answer: star })}
+                onClick={() => updateQuestion(index, { ...question, options: [] })}
                 className={`text-2xl ${question.answer >= star ? 'text-yellow-400' : 'text-gray-300'
                   } focus:outline-none`}
                 aria-label={`Calificación ${star} estrellas`}
@@ -451,9 +464,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
               type="checkbox"
               id={`required-rating-${index}`}
               checked={question.required || false}
-              onChange={(e) =>
-                updateQuestion(index, { ...question, required: e.target.checked })
-              }
+              onChange={(e) => updateQuestion(index, { ...question, required: e.target.checked, options: [] })}
               className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
             />
             <label htmlFor={`required-rating-${index}`} className="text-sm text-gray-700">
@@ -472,9 +483,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
           <input
             type="date"
             value={question.answer || ''}
-            onChange={(e) =>
-              updateQuestion(index, { ...question, answer: e.target.value })
-            }
+            onChange={(e) => updateQuestion(index, { ...question, answer: e.target.value, options: [] })}
             disabled
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
           />
@@ -485,9 +494,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
               type="checkbox"
               id={`required-date-${index}`}
               checked={question.required || false}
-              onChange={(e) =>
-                updateQuestion(index, { ...question, required: e.target.checked })
-              }
+              onChange={(e) => updateQuestion(index, { ...question, required: e.target.checked, options: [] })}
               className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
             />
             <label htmlFor={`required-date-${index}`} className="text-sm text-gray-700">
@@ -506,9 +513,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
           <input
             type="time"
             value={question.answer || ''}
-            onChange={(e) =>
-              updateQuestion(index, { ...question, answer: e.target.value })
-            }
+            onChange={(e) => updateQuestion(index, { ...question, answer: e.target.value, options: [] })}
             disabled
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
           />
@@ -519,9 +524,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
               type="checkbox"
               id={`required-time-${index}`}
               checked={question.required || false}
-              onChange={(e) =>
-                updateQuestion(index, { ...question, required: e.target.checked })
-              }
+              onChange={(e) => updateQuestion(index, { ...question, required: e.target.checked, options: [] })}
               className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
             />
             <label htmlFor={`required-time-${index}`} className="text-sm text-gray-700">
@@ -530,7 +533,6 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
           </div>
         </div>
       )}
-
 
 
     </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { updateById, findById } from "./api";
-import QuestionItem from './question-item';
+import QuestionItem from '../components/question-item';
 import {
     CloudArrowUpIcon,
     PlusCircleIcon,

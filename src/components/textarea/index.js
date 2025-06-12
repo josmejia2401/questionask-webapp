@@ -1,143 +1,145 @@
 import React from 'react';
-import Joi from 'joi';
-import './styles.css';
-/**
- * Componente Input personalizado.
- * @param {Object} props - Las propiedades del componente.
- * @returns {JSX.Element} - Un campo de entrada personalizado con validación y manejo de errores.
- */
-class Component extends React.Component {
 
+class Textarea extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            errors: []
+            errors: [],
+            currentLength: (props.value || '').length
         };
-        this.limpiarRegex = this.limpiarRegex.bind(this);
-        this.validarDatosConJoi = this.validarDatosConJoi.bind(this);
-        this.onChange = this.onChange.bind(this);
     }
-    // Método para limpiar y validar el formato de una expresión regular.
-    limpiarRegex(regexStr) {
-        return regexStr && String(regexStr).startsWith('/') && String(regexStr).endsWith('/')
-            ? String(regexStr).slice(1, -1)  // Elimina los delimitadores '/' si están presentes.
-            : regexStr;  // Devuelve la cadena original si no tiene delimitadores.
+
+    limpiarRegex = (regexStr) => {
+        return regexStr?.startsWith('/') && regexStr.endsWith('/')
+            ? regexStr.slice(1, -1)
+            : regexStr;
     };
 
-    /**
-     * Valida los datos ingresados según el esquema definido en props.schema.
-     * @returns {Object|null} - Devuelve un objeto con errores o null si no hay errores.
-     */
-    validarDatosConJoi(event) {
-        const { schema } = this.props;
-        let joiSchema = Joi.string();
-        if (schema.required === true) {
-            joiSchema = joiSchema.required();
-        } else {
-            joiSchema = joiSchema.allow('').optional();
+    validarEntrada = (value) => {
+        const {
+            label,
+            name,
+            type,
+            maxLength,
+            minLength,
+            max,
+            min,
+            pattern,
+            required
+        } = this.props;
+
+        const errors = [];
+        const trimmed = value?.toString().trim() ?? '';
+
+        if (required && trimmed === '') {
+            errors.push(`${label || name} es requerido`);
+            return errors;
         }
-        if (schema.minLength) joiSchema = joiSchema.min(schema.minLength);
-        if (schema.maxLength) joiSchema = joiSchema.max(schema.maxLength);
-        if (schema.pattern) joiSchema = joiSchema.pattern(new RegExp(schema.pattern));
-        if (schema.type === 'number') joiSchema = Joi.number();
-        if (schema.min !== undefined) joiSchema = joiSchema.min(schema.min);
-        if (schema.max !== undefined) joiSchema = joiSchema.max(schema.max);
-        const validation = joiSchema.validate(event.target.value, { abortEarly: false });
-        if (validation.error) {
-            const details = validation.error.details.map((err) => {
-                console.log(err);
-                switch (err.type) {
-                    case "string.base":
-                        err.message = `${schema.name} debe ser de tipo texto`;
-                        break;
-                    case "string.required":
-                        err.message = `${schema.name} es requerido`;
-                        break;
-                    case "string.empty":
-                        err.message = `${schema.name} no puede ser vacío`;
-                        break;
-                    case "string.min":
-                        err.message = `${schema.name} debe tener al menos ${err.context.limit} caracteres`;
-                        break;
-                    case "string.max":
-                        err.message = `${schema.name} debe tener como máximo ${err.context.limit} caracteres`;
-                        break;
-                    case "any.empty":
-                        err.message = `${schema.name} no puede ser vacío`;
-                        break;
-                    case "any.min":
-                        err.message = `${schema.name} debe tener al menos ${err.context.limit} caracteres`;
-                        break;
-                    case "any.required":
-                        err.message = `${schema.name} es requerido`;
-                        break;
-                    case "any.max":
-                        err.message = `${schema.name} debe tener como máximo ${err.context.limit} caracteres`;
-                        break;
-                    case "string.pattern.base":
-                        err.message = `${schema.name} no cumple con el formato requerido`;
-                        break;
-                    default:
-                        break;
+
+        if (minLength !== undefined && trimmed.length < minLength) {
+            errors.push(`${label || name} debe tener al menos ${minLength} caracteres`);
+        }
+
+        if (maxLength !== undefined && trimmed.length > maxLength) {
+            errors.push(`${label || name} debe tener como máximo ${maxLength} caracteres`);
+        }
+
+        if (pattern) {
+            const regex = new RegExp(this.limpiarRegex(pattern));
+            if (!regex.test(trimmed)) {
+                errors.push(`${label || name} no cumple con el formato requerido`);
+            }
+        }
+
+        if (type === 'number') {
+            const num = Number(trimmed);
+            if (isNaN(num)) {
+                errors.push(`${label || name} debe ser un número`);
+            } else {
+                if (min !== undefined && num < min) {
+                    errors.push(`${label || name} debe ser mayor o igual a ${min}`);
                 }
-                return err.message;
-            });
-            this.setState({
-                errors: details
-            });
-            return details;
+                if (max !== undefined && num > max) {
+                    errors.push(`${label || name} debe ser menor o igual a ${max}`);
+                }
+            }
         }
-        this.setState({
-            errors: []
-        });
-        return [];
+
+        return errors;
     };
 
-    onChange(event) {
-        const errors = this.validarDatosConJoi(event);
+    onChange = (event) => {
+        const value = event.target.value;
+        const errors = this.validarEntrada(value);
+
+        this.setState({
+            errors,
+            currentLength: value.length
+        });
+
         if (this.props.onChange) {
             this.props.onChange(event, errors);
         }
-    }
+    };
 
     render() {
         const {
-            schema,
+            id,
+            name,
+            label,
             value,
             disabled,
+            type = 'text',
+            placeholder = '',
+            maxLength,
+            minLength,
+            max,
+            min,
+            size,
+            pattern,
+            required,
+            step,
+            autoComplete
         } = this.props;
-        const {
-            id, name, type, placeholder, maxLength, minLength, max, min, size, pattern, required, step, autoComplete
-        } = schema;
+
+        const { errors, currentLength } = this.state;
+
         return (
-            <div className="form-group">
-                <label htmlFor={id} className={`form-label control-label`}>
-                    {name}{required && <span className='invalid-feedback' style={{ display: 'inline' }}>*</span>}
-                </label>
+            <div className="mb-4">
+                {label && (
+                    <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+                        {label}
+                        {required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                )}
                 <textarea
-                    type={type}
                     id={id}
-                    name={id}
-                    placeholder={placeholder}
+                    name={name}
+                    type={type}
                     value={value}
+                    placeholder={placeholder}
                     maxLength={maxLength}
                     minLength={minLength}
                     max={max}
                     min={min}
                     size={size}
                     pattern={this.limpiarRegex(pattern)}
+                    step={step}
+                    required={required}
+                    autoComplete={autoComplete}
                     onChange={this.onChange}
                     disabled={disabled}
-                    autoComplete={autoComplete}
-                    className={`form-control ${required && this.state.errors.length > 0 && 'border border-danger'}`}
-                    required={required}
-                    step={step}
-                    rows={schema.rows}
-                    cols={schema.cols}
+                    className={`mt-1 block w-full px-3 py-2 border ${errors.length > 0 ? 'border-red-500' : 'border-gray-300'
+                        } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
                 />
-                {this.state.errors && this.state.errors.length > 0 && (
-                    <div className="invalid-feedback" style={{ display: 'block' }}>
-                        {this.state.errors[0]}
+                {(maxLength !== undefined || errors.length > 0) && (
+                    <div className="mt-1 flex justify-between text-xs">
+                        {errors.length > 0 ? (
+                            <span className="text-red-600">{errors[0]}</span>
+                        ) : <span></span>}
+                        {maxLength !== undefined && (
+                            <span className="text-gray-500">{currentLength}/{maxLength} caracteres</span>
+                        )}
                     </div>
                 )}
             </div>
@@ -145,4 +147,4 @@ class Component extends React.Component {
     }
 }
 
-export default Component;
+export default Textarea;
