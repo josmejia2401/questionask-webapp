@@ -46,7 +46,7 @@ export default function App() {
   
   useEffect(() => {
     const handleKeyDown = (e) => {
-      const key = e.key.toLowerCase();
+      const key = e.key?.toLowerCase();
 
       // F5
       if (key === 'f5') {
