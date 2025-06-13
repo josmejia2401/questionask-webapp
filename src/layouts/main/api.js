@@ -10,3 +10,13 @@ export const logout = async () => {
         AuthStore.logout();
     }
 }
+
+export const findById = async () => {
+    try {
+        const res = await axiosInstance("https://questionask-users-ms.onrender.com").get(`/v1/api/users/${AuthStore.getState().tokenInfo.keyid}`);
+        AuthStore.setUserInfo(res.data.data);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}

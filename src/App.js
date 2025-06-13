@@ -43,7 +43,7 @@ function AppRoutes() {
 }
 
 export default function App() {
-  /*
+  
   useEffect(() => {
     const handleKeyDown = (e) => {
       const key = e.key.toLowerCase();
@@ -67,20 +67,11 @@ export default function App() {
       }
     };
 
-    const handleBeforeUnload = (e) => {
-      // Mensaje no siempre es mostrado, depende del navegador
-      e.preventDefault();
-      e.returnValue = '';
-    };
-
     window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, []);*/
+  }, []);
   return (
     <BrowserRouter>
       <AppRoutes />

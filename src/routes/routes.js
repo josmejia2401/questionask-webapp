@@ -34,7 +34,7 @@ const routes = [
     path: '/dashboard',
     element: (
       <PrivateRoute>
-        <MainLayout><DashboardPage /></MainLayout>
+        <MainLayout title={'Tablero'}><DashboardPage /></MainLayout>
       </PrivateRoute>
     ),
   },
@@ -42,7 +42,7 @@ const routes = [
     path: '/profile/edit',
     element: (
       <PrivateRoute>
-        <MainLayout><EditProfilePage /></MainLayout>
+        <MainLayout title={'Perfil'}><EditProfilePage /></MainLayout>
       </PrivateRoute>
     ),
   },
@@ -50,7 +50,7 @@ const routes = [
     path: '/forms/create',
     element: (
       <PrivateRoute>
-        <MainLayout><CreateFormPage /></MainLayout>
+        <MainLayout title={'Crear formulario'}><CreateFormPage /></MainLayout>
       </PrivateRoute>
     ),
   },
@@ -58,7 +58,7 @@ const routes = [
     path: '/forms/viewer',
     element: (
       <PrivateRoute>
-        <MainLayout><ViewFormPage /></MainLayout>
+        <MainLayout title={'Mis formularios'}><ViewFormPage /></MainLayout>
       </PrivateRoute>
     ),
   },
@@ -66,7 +66,7 @@ const routes = [
     path: '/forms/edit',
     element: (
       <PrivateRoute>
-        <MainLayout><EditFormPage /></MainLayout>
+        <MainLayout title={'Editar formulario'}><EditFormPage /></MainLayout>
       </PrivateRoute>
     ),
   },
@@ -74,7 +74,7 @@ const routes = [
     path: '/forms/responses',
     element: (
       <PrivateRoute>
-        <MainLayout><FormResponsePage /></MainLayout>
+        <MainLayout title={'Respuestas'}><FormResponsePage /></MainLayout>
       </PrivateRoute>
     ),
   },

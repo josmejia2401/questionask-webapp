@@ -8,6 +8,7 @@ export class AuthStore {
         token: null,
         isAuthenticated: false,
         tokenInfo: '',
+        userInfo: {}
     };
 
     static getState() {
@@ -26,11 +27,18 @@ export class AuthStore {
         localStorage.setItem("state", JSON.stringify(AuthStore.data));
     }
 
+    static setUserInfo(data) {
+        AuthStore.data.status = "set";
+        AuthStore.data.userInfo = data;
+        localStorage.setItem("state", JSON.stringify(AuthStore.data));
+    }
+
     static logout() {
         AuthStore.data.status = "unset";
         AuthStore.data.isAuthenticated = false;
         AuthStore.data.token = null;
         AuthStore.data.tokenInfo = null;
+        AuthStore.data.userInfo = null;
         localStorage.removeItem("state");
         localStorage.clear();
     }

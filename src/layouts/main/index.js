@@ -1,11 +1,13 @@
 import * as React from "react";
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { Bars3Icon, BellIcon, XMarkIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import "./styles.css";
 import { Link } from "react-router-dom";
 import LocalStorageWatcher from '../../store/localStorageWatcher';
 import { AuthStore } from '../../store/index';
-import { logout } from "./api";
+import { logout, findById } from "./api";
+import Header from "./components/header";
+import UserIcon from "./components/user-icon";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -19,10 +21,9 @@ class Layout extends React.Component {
       preloader: true,
       loadingItem: null,
       user: {
-        name: 'Tom Cook',
-        email: 'tom@example.com',
-        imageUrl:
-          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+        name: '',
+        email: '',
+        imageUrl: '',
       },
       navigation: [
         {
@@ -62,8 +63,8 @@ class Layout extends React.Component {
         },*/
       ],
       userNavigation: [
-        { name: 'Mi cuenta', href: '#' },
-        { name: 'Opciones', href: '#' },
+        { name: 'Mi cuenta', href: '/profile/edit' },
+        //{ name: 'Opciones', href: '#' },
         { name: 'Salir', href: '#', onClick: logout },
       ],
       mobileSubmenusOpen: {},
@@ -79,6 +80,7 @@ class Layout extends React.Component {
     this.checkDocumentState();
     this.localStorageWatcher = new LocalStorageWatcher(this.detectChangesStorage);
     this.goToAuth();
+
   }
 
   componentWillUnmount() {
@@ -88,6 +90,16 @@ class Layout extends React.Component {
   checkDocumentState = () => {
     if (document.readyState === "complete") {
       this.setState({ preloader: false });
+      findById().then(res => {
+        this.setState({
+          user: {
+            name: res.data.firstName,
+            email: res.data.email,
+            imageUrl:
+              '',
+          }
+        });
+      });
     } else {
       window.addEventListener('load', () => this.setState({ preloader: false }));
     }
@@ -201,6 +213,7 @@ class Layout extends React.Component {
                 </div>
                 <div className="hidden md:block">
                   <div className="ml-4 flex items-center md:ml-6">
+                    {/*
                     <button
                       type="button"
                       className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
@@ -209,6 +222,7 @@ class Layout extends React.Component {
                       <span className="sr-only">View notifications</span>
                       <BellIcon aria-hidden="true" className="size-6" />
                     </button>
+                     */}
 
                     {/* Profile dropdown */}
                     <Menu as="div" className="relative ml-3">
@@ -216,7 +230,8 @@ class Layout extends React.Component {
                         <MenuButton className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
                           <span className="absolute -inset-1.5" />
                           <span className="sr-only">Open user menu</span>
-                          <img alt="" src={user.imageUrl} className="size-8 rounded-full" />
+                          {/*<img alt="" src={user.imageUrl} className="size-8 rounded-full" />*/}
+                          <UserIcon></UserIcon>
                         </MenuButton>
                       </div>
                       <MenuItems
@@ -225,8 +240,8 @@ class Layout extends React.Component {
                       >
                         {userNavigation.map((item) => (
                           <MenuItem key={item.name}>
-                            <a
-                              href={item.href}
+                            <Link
+                              to={item.href}
                               className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                               onClick={async (e) => {
                                 e.preventDefault();
@@ -244,7 +259,7 @@ class Layout extends React.Component {
                               }}
                             >
                               {this.state.loadingItem === item.name ? 'Cargando...' : item.name}
-                            </a>
+                            </Link>
                           </MenuItem>
                         ))}
                       </MenuItems>
@@ -322,20 +337,21 @@ class Layout extends React.Component {
               <div className="border-t border-gray-700 pt-4 pb-3">
                 <div className="flex items-center px-5">
                   <div className="shrink-0">
-                    <img alt="" src={user.imageUrl} className="size-10 rounded-full" />
+                    {/*<img alt="" src={user.imageUrl} className="size-10 rounded-full" />*/}
+                    <UserIcon></UserIcon>
                   </div>
                   <div className="ml-3">
-                    <div className="text-base/5 font-medium text-white">{user.name}</div>
-                    <div className="text-sm font-medium text-gray-400">{user.email}</div>
+                    <div className="text-base/5 font-medium text-white">{user.name || "jose"}</div>
+                    <div className="text-sm font-medium text-gray-400">{user.email || "email"}</div>
                   </div>
-                  <button
+                  {/*<button
                     type="button"
                     className="relative ml-auto shrink-0 rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
                   >
                     <span className="absolute -inset-1.5" />
                     <span className="sr-only">View notifications</span>
                     <BellIcon aria-hidden="true" className="size-6" />
-                  </button>
+                  </button> */}
                 </div>
                 <div className="mt-3 space-y-1 px-2">
                   {userNavigation.map((item) => (
@@ -353,11 +369,7 @@ class Layout extends React.Component {
             </DisclosurePanel>
           </Disclosure>
 
-          <header className="bg-white shadow-sm">
-            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
-            </div>
-          </header>
+          <Header title={this.props.title}></Header>
           <main>
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
               {children}
