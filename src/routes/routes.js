@@ -6,14 +6,11 @@ import AuthLayout from '../layouts/auth/index';
 import MainLayout from '../layouts/main/index';
 
 // Lazy load de páginas
-const IndexPage = lazy(() => import('../pages/index'));
 const NotFoundPage = lazy(() => import('../pages/not-found'));
-
 const LoginPage = lazy(() => import('../features/auth/login'));
 const RegisterPage = lazy(() => import('../features/auth/register'));
 const DashboardPage = lazy(() => import('../features/dashboard'));
-const UsersPage = lazy(() => import('../features/users'));
-const EditProfilePage = lazy(() => import('../features/profile/edit'));
+const EditProfilePage = lazy(() => import('../features/profile/user-profile'));
 const CreateFormPage = lazy(() => import('../features/forms/create'));
 const ViewFormPage = lazy(() => import('../features/forms/view'));
 const EditFormPage = lazy(() => import('../features/forms/edit'));
@@ -23,13 +20,7 @@ const PublicFormQuestionPage = lazy(() => import('../features/forms/public/form-
 const routes = [
   {
     path: '/',
-    element: <Navigate to="/index" />,
-  },
-  {
-    path: '/index',
-    element: (
-      <IndexPage></IndexPage>
-    ),
+    element: <Navigate to="/auth/login" />,
   },
   {
     path: '/auth/login',
@@ -48,10 +39,10 @@ const routes = [
     ),
   },
   {
-    path: '/users',
+    path: '/profile/edit',
     element: (
       <PrivateRoute>
-        <MainLayout><UsersPage /></MainLayout>
+        <MainLayout><EditProfilePage /></MainLayout>
       </PrivateRoute>
     ),
   },
@@ -91,14 +82,6 @@ const routes = [
     path: '/public/form',
     element: (
       <PublicFormQuestionPage />
-    ),
-  },
-  {
-    path: '/profile/edit',
-    element: (
-      <PrivateRoute>
-        <MainLayout><EditProfilePage /></MainLayout>
-      </PrivateRoute>
     ),
   },
   {

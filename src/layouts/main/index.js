@@ -48,7 +48,7 @@ class Layout extends React.Component {
             }
           ]
         },
-        {
+        /*{
           name: 'Plantillas',
           href: '#',
           current: false,
@@ -59,7 +59,7 @@ class Layout extends React.Component {
           href: '#',
           current: false,
           children: []
-        },
+        },*/
       ],
       userNavigation: [
         { name: 'Mi cuenta', href: '#' },
