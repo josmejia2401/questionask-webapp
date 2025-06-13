@@ -2,7 +2,7 @@ import * as React from 'react';
 import "./styles.css";
 import { Link } from 'react-router-dom';
 
-//import banner from '../../assets/img/auth-banner.png';
+//import banner from '../../assets/img/logo.png';
 import LocalStorageWatcher from '../../store/localStorageWatcher';
 import { AuthStore } from '../../store/index';
 

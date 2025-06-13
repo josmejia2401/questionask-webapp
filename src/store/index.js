@@ -20,27 +20,33 @@ export class AuthStore {
     }
 
     static setToken(token) {
-        AuthStore.data.status = "set";
-        AuthStore.data.isAuthenticated = true;
-        AuthStore.data.token = token;
-        AuthStore.data.tokenInfo = parseJwt(token);
-        localStorage.setItem("state", JSON.stringify(AuthStore.data));
+        const data = AuthStore.getState();
+        data.status = "set";
+        data.isAuthenticated = true;
+        data.token = token;
+        data.tokenInfo = parseJwt(token);
+        localStorage.setItem("state", JSON.stringify(data));
+        AuthStore.data = data;
     }
 
-    static setUserInfo(data) {
-        AuthStore.data.status = "set";
-        AuthStore.data.userInfo = data;
-        localStorage.setItem("state", JSON.stringify(AuthStore.data));
+    static setUserInfo(data1) {
+        const data = AuthStore.getState();
+        data.status = "set";
+        data.userInfo = data1;
+        localStorage.setItem("state", JSON.stringify(data));
+        AuthStore.data = data;
     }
 
     static logout() {
-        AuthStore.data.status = "unset";
-        AuthStore.data.isAuthenticated = false;
-        AuthStore.data.token = null;
-        AuthStore.data.tokenInfo = null;
-        AuthStore.data.userInfo = null;
+        const data = AuthStore.getState();
+        data.status = "unset";
+        data.isAuthenticated = false;
+        data.token = null;
+        data.tokenInfo = null;
+        data.userInfo = null;
         localStorage.removeItem("state");
         localStorage.clear();
+        AuthStore.data = data;
     }
 }
 

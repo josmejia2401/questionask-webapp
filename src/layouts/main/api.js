@@ -7,6 +7,7 @@ export const logout = async () => {
         AuthStore.logout();
         return res.data;
     } catch (error) {
+        console.log(">>>>>>>", error);
         AuthStore.logout();
     }
 }
@@ -17,6 +18,7 @@ export const findById = async () => {
         AuthStore.setUserInfo(res.data.data);
         return res.data;
     } catch (error) {
-        throw error;
+        console.log(">>>>>>>", error);
+        //throw error;
     }
 }

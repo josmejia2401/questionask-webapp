@@ -8,6 +8,7 @@ import { AuthStore } from '../../store/index';
 import { logout, findById } from "./api";
 import Header from "./components/header";
 import UserIcon from "./components/user-icon";
+import logo from '../../assets/img/logo.png';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -114,7 +115,7 @@ class Layout extends React.Component {
     }
   }
 
-  goToAuth() {
+  goToAuth() { 
     if (!AuthStore.getState().isAuthenticated) {
       window.location.replace('/auth/login');
     }
@@ -145,11 +146,16 @@ class Layout extends React.Component {
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
                   <div className="shrink-0">
-                    <img
-                      alt="Your Company"
-                      src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                      className="size-8"
-                    />
+                    <div className="flex lg:flex-1 items-center">
+                      <a href="#" className="-m-1.5 p-1.5 flex items-center">
+                        <span className="sr-only">QuestionAsk</span>
+                        <img
+                          alt="QuestionAsk"
+                          src={logo}
+                          className="h-16 w-auto max-w-none"
+                        />
+                      </a>
+                    </div>
                   </div>
 
                   <div className="hidden md:block">
