@@ -155,7 +155,20 @@ export default function FormQuestions() {
 
     return (
         <div className="max-w-3xl mx-auto px-4 py-6">
-            <h2 className="text-2xl font-bold mb-4">{formData.title}</h2>
+            <div className="flex items-center gap-3 mb-4">
+                <svg className="w-8 h-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2a4 4 0 014-4h1a4 4 0 014 4v2m-5-10a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <h2 className="text-2xl font-bold text-indigo-800">{formData.title}</h2>
+            </div>
+
+            {formData.description && (
+                <p className="text-gray-600 mb-6 text-md">{formData.description}</p>
+            )}
+
+            <div className="text-sm text-gray-500 mb-4 text-right">
+                {Object.values(answers).filter(v => (Array.isArray(v) ? v.length > 0 : v)).length} / {formData.questions.length} preguntas respondidas
+            </div>
 
             {error && <p className="text-red-600 mb-4">{error}</p>}
 
@@ -182,7 +195,7 @@ export default function FormQuestions() {
 
             <div className="space-y-6">
                 {formData.questions.map((q) => (
-                    <div key={q.id} className="border p-4 rounded-md shadow-sm bg-white">
+                    <div key={q.id} className="border p-4 rounded-md shadow-sm bg-white transition transform hover:scale-[1.01]">
                         {renderInput(q, answers[q.id], (val) => handleChange(q, val))}
                     </div>
                 ))}
