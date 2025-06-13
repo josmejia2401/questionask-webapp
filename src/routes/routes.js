@@ -90,9 +90,7 @@ const routes = [
   {
     path: '/public/form',
     element: (
-      <PrivateRoute>
-        <MainLayout><PublicFormQuestionPage /></MainLayout>
-      </PrivateRoute>
+      <PublicFormQuestionPage />
     ),
   },
   {

@@ -20,6 +20,9 @@ const EditFormPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [showShareUrl, setShowShareUrl] = useState(false);
+    const [publicUrl, setPublicUrl] = useState(null);
+    const [copied, setCopied] = useState(false);
 
     const trackError = (error, context) => {
         console.error(context, error);
@@ -46,8 +49,9 @@ const EditFormPage = () => {
                     .slice()
                     .sort((a, b) => a.order - b.order)
             };
-            console.log("formData", sortedForm);
             setFormData(sortedForm);
+            const publicUrl = `${window.location.origin}/public/form?id=${sortedForm.id}`;
+            setPublicUrl(publicUrl);
         } catch (err) {
             setError(err.message || 'Error al cargar el formulario');
         } finally {
@@ -58,6 +62,7 @@ const EditFormPage = () => {
     useEffect(() => {
         fetchForm();
     }, [fetchForm]);
+
 
 
 
@@ -319,6 +324,15 @@ const EditFormPage = () => {
                     icon={<CloudArrowUpIcon className="w-5 h-5" />}>
                 </ButtonComponent>
 
+                {formData.isPublic && (
+                    <ButtonComponent
+                        onClick={() => setShowShareUrl(!showShareUrl)}
+                        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        icon={<ArrowPathIcon className="w-5 h-5" />}
+                        text={showShareUrl ? "Ocultar enlace" : "Compartir"}
+                    />
+                )}
+
                 {!formData.isPublic && <ButtonComponent
                     onClick={onPublish}
                     className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -327,6 +341,39 @@ const EditFormPage = () => {
                     disabled={!formData.id || loading}>
                 </ButtonComponent>}
             </div>
+
+            {showShareUrl && (
+                <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+                    <p className="text-sm text-blue-800">
+                        Comparte este enlace con las personas que responderán el formulario:
+                    </p>
+                    <div className="mt-2 flex items-center space-x-2">
+                        <input
+                            type="text"
+                            readOnly
+                            value={publicUrl}
+                            className="w-full px-3 py-2 border border-blue-300 rounded bg-white text-sm text-gray-800"
+                        />
+                        <button
+                            className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                            onClick={() => {
+                                navigator.clipboard.writeText(publicUrl);
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 3000);
+                            }}
+                        >
+                            Copiar
+                        </button>
+                    </div>
+                    {copied && (
+                        <p className="text-xs text-green-700 mt-2">
+                            ¡Enlace copiado al portapapeles!
+                        </p>
+                    )}
+                </div>
+            )}
+
+
 
 
             {success && <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
@@ -360,7 +407,7 @@ const EditFormPage = () => {
                             id="description"
                             placeholder="Descripción del formulario"
                             value={formData.description || ''}
-                            maxLength={300}
+                            maxLength={255}
                             onChange={(e) =>
                                 setFormData({ ...formData, description: e.target.value })
                             }

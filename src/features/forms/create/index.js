@@ -326,7 +326,7 @@ const EditFormPage = () => {
                             id="description"
                             placeholder="Descripción del formulario"
                             value={formData.description || ''}
-                            maxLength={300}
+                            maxLength={255}
                             onChange={(e) =>
                                 setFormData({ ...formData, description: e.target.value })
                             }

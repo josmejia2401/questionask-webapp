@@ -1,15 +1,16 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { findById } from "./api";
-import { ArrowPathIcon } from "@heroicons/react/24/solid";
+import { ArrowPathIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
 export default function FormResponses() {
-  const [id] = useState(useQuery().get('id'));
+  const [id] = useState(useQuery().get("id"));
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [expanded, setExpanded] = useState({}); // controla el expand/collapse
 
   const fetchForm = useCallback(async () => {
     try {
@@ -17,16 +18,15 @@ export default function FormResponses() {
       setLoading(true);
       const json = await findById(id);
       if (json.code !== 200) {
-        throw new Error(json.message || 'Respuestas no encontrado');
+        throw new Error(json.message || "Respuestas no encontradas");
       }
       setResponses(
         json.data
           .slice()
-          .sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt))
+          .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
       );
-
     } catch (err) {
-      setError(err.message || 'Error al cargar las respuestas');
+      setError(err.message || "Error al cargar las respuestas");
     } finally {
       setLoading(false);
     }
@@ -36,7 +36,9 @@ export default function FormResponses() {
     fetchForm();
   }, [fetchForm]);
 
-
+  const toggleExpand = (id) => {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   if (loading) {
     return (
@@ -47,19 +49,8 @@ export default function FormResponses() {
           fill="none"
           viewBox="0 0 24 24"
         >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          ></circle>
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-          ></path>
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
         </svg>
       </div>
     );
@@ -76,7 +67,7 @@ export default function FormResponses() {
           </div>
           <div className="ml-3">
             <p className="text-sm text-red-700">
-              Error al cargar formularios: {error}
+              Error al cargar respuestas: {error}
               <button
                 onClick={fetchForm}
                 className="ml-2 text-sm font-medium text-red-600 hover:text-red-500"
@@ -90,42 +81,53 @@ export default function FormResponses() {
     );
   }
 
-
-  if (responses.length === 0) return <p className="text-center mt-4">No hay respuestas aún.</p>;
+  if (responses.length === 0)
+    return <p className="text-center mt-4 text-gray-600">No hay respuestas aún.</p>;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-6 text-center">Respuestas del Formulario</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center text-indigo-700">Respuestas del Formulario</h2>
 
       <div className="flex justify-end mb-4">
         <button
           onClick={fetchForm}
           className="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded hover:bg-indigo-700 transition"
         >
-          <ArrowPathIcon className="w-5 h-5" aria-hidden="true"></ArrowPathIcon>
+          <ArrowPathIcon className="w-5 h-5 mr-1" aria-hidden="true" />
+          Recargar
         </button>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {responses.map((response, idx) => (
-          <div key={response.id} className="bg-white shadow-md rounded-lg p-4 border">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-500">Respuesta #{idx + 1}</span>
-              <span className="text-sm text-gray-600">
-                {response.submittedAt}
-              </span>
+          <div key={response.id} className="bg-white shadow rounded border">
+            <div
+              onClick={() => toggleExpand(response.id)}
+              className="cursor-pointer px-4 py-3 flex justify-between items-center hover:bg-gray-50"
+            >
+              <div>
+                <p className="text-sm text-gray-500">Respuesta #{idx + 1}</p>
+                <p className="text-xs text-gray-400">{new Date(response.submittedAt).toLocaleString()}</p>
+              </div>
+              {expanded[response.id] ? (
+                <ChevronUpIcon className="w-5 h-5 text-gray-600" />
+              ) : (
+                <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+              )}
             </div>
-            <div className="space-y-2">
-              {response.answers.map((ans) => (
-                <div
-                  key={ans.id}
-                  className="bg-gray-50 p-3 rounded border text-gray-800"
-                >
-                  <strong>Pregunta ID:</strong> {ans.questionId}<br />
-                  <strong>Respuesta:</strong> {ans.answerText}
-                </div>
-              ))}
-            </div>
+
+            {expanded[response.id] && (
+              <div className="px-4 pb-4 space-y-3 transition-all duration-200">
+                {response.answers.map((ans) => (
+                  <div key={ans.id} className="bg-gray-100 p-3 rounded">
+                    <p className="text-sm font-medium text-gray-700">
+                      {ans.question?.questionText || "Pregunta desconocida"}
+                    </p>
+                    <p className="text-sm text-gray-800 mt-1">{ans.answerText || "Sin respuesta"}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
