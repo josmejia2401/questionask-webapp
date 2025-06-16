@@ -7,6 +7,7 @@ import {
     PaperAirplaneIcon,
     ArrowPathIcon
 } from '@heroicons/react/24/solid';
+
 import ButtonComponent from '../../../components/button-secondary';
 import { useLocation } from 'react-router-dom';
 import InputTitle from '../../../components/input-title';
@@ -290,13 +291,25 @@ const EditFormPage = () => {
 
     if (error) {
         return (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4">
-                <p className="text-sm text-red-700">
-                    Error al cargar el formulario: {error}
-                    <button onClick={hideError} className="ml-2 underline">
-                        Ocultar
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    <ArrowPathIcon
+                        className="w-6 h-6 text-red-400 animate-spin"
+                        aria-hidden="true"
+                    />
+                    <p className="text-sm text-red-700 font-medium">
+                        Error al cargar el formulario: <span className="font-normal">{error}</span>
+                    </p>
+                </div>
+                <div className="flex gap-2 mt-2 sm:mt-0">
+                    <button
+                        onClick={fetchForm}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors shadow focus:outline-none focus:ring-2 focus:ring-red-400"
+                    >
+                        <ArrowPathIcon className="w-5 h-5 mr-1" />
+                        Reintentar
                     </button>
-                </p>
+                </div>
             </div>
         );
     }

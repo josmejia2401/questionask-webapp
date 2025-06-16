@@ -4,12 +4,12 @@ import QuestionItem from '../components/question-item';
 import {
     CloudArrowUpIcon,
     PlusCircleIcon,
-    PaperAirplaneIcon,
-    ArrowPathIcon
+    ArrowRightCircleIcon
 } from '@heroicons/react/24/solid';
 import ButtonComponent from '../../../components/button-secondary';
 import InputTitle from '../../../components/input-title';
 import TextareaTitle from '../../../components/input-title';
+import { Link } from 'react-router-dom';
 
 const EditFormPage = () => {
     const [formData, setFormData] = useState({});
@@ -35,7 +35,7 @@ const EditFormPage = () => {
 
             // Validación básica de formData
             if (!formData || !formData.questions) {
-                throw new Error('Datos del formulario incompletos');
+                throw new Error('No pudimos procesar el formulario porque falta información. Valida que todos los campos obligatorios y las preguntas estén correctamente ingresados.');
             }
 
             // Procesamiento de imágenes y preparación de datos
@@ -58,7 +58,7 @@ const EditFormPage = () => {
             const response = await create(payload);
 
             if (response.code !== 201) {
-                throw new Error(response.message || 'Error en la respuesta del servidor');
+                throw new Error(response.message || 'No fue posible obtener una respuesta del servidor. Por favor, revisa tu conexión o intenta más tarde.');
             }
 
             // Actualización del estado con respuesta
@@ -68,7 +68,7 @@ const EditFormPage = () => {
                 isPublic: false,
             }));
 
-            setSuccess(response.message || 'Formulario guardado exitosamente');
+            setSuccess(response.message || 'Tu formulario fue guardado exitosamente. Ahora puedes continuar editando o compartirlo.');
 
             if (filesToUpload.length > 0) {
                 await uploadFiles(filesToUpload, response.data.id);
@@ -112,7 +112,7 @@ const EditFormPage = () => {
     const handleSaveError = (error) => {
         const errorMessage = error.response?.data?.message
             || error.message
-            || 'Error al guardar el formulario';
+            || 'No fue posible obtener una respuesta del servidor. Por favor, revisa tu conexión o intenta más tarde.';
 
         console.error('Error en handleSave:', error);
         setError(errorMessage);
@@ -174,17 +174,16 @@ const EditFormPage = () => {
             const response = await updateById(payload.id, payload);
 
             if (response.code !== 200) {
-                throw new Error(response.message || 'Error en la respuesta del servidor');
+                throw new Error(response.message || 'No fue posible obtener una respuesta del servidor. Por favor, revisa tu conexión o intenta más tarde.');
             }
 
-            // Actualización del estado con respuesta
             setFormData(prev => ({
                 ...prev,
                 id: response.data.id,
                 isPublic: true,
             }));
 
-            setSuccess(response.message || 'Formulario guardado exitosamente');
+            setSuccess(response.message || 'Tu formulario fue publicado correctamente. Ahora puedes compartirlo o recibir respuestas.');
 
             if (filesToUpload.length > 0) {
                 await uploadFiles(filesToUpload, response.data.id);
@@ -253,7 +252,7 @@ const EditFormPage = () => {
         return (
             <div className="bg-red-50 border-l-4 border-red-500 p-4">
                 <p className="text-sm text-red-700">
-                    Error al cargar el formulario: {error}
+                    {error}
                     <button onClick={hideError} className="ml-2 underline">
                         Ocultar
                     </button>
@@ -284,23 +283,24 @@ const EditFormPage = () => {
                     text={`Guardar`}
                     icon={<CloudArrowUpIcon className="w-5 h-5" />}>
                 </ButtonComponent>
-
-                {!formData.isPublic && <ButtonComponent
-                    onClick={onPublish}
-                    className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                    icon={<PaperAirplaneIcon className="w-5 h-5" />}
-                    text="Publicar"
-                    disabled={!formData.id || loading}>
-                </ButtonComponent>}
             </div>
 
 
-            {success && <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
-                <p className="text-sm text-green-700">
-                    {success}
-                    <button onClick={() => window.location.reload()} className="ml-2 underline">
-                        Refrescar
-                    </button>
+            {success && <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded group shadow">
+                <div className="flex items-center gap-3">
+                    <ArrowRightCircleIcon className="h-7 w-7 text-green-500 animate-bounce" aria-hidden="true" />
+                    <p className="flex-1 text-green-700 text-sm">{success}</p>
+                    <Link
+                        to={`/forms/edit?id=${formData.id}`}
+                        className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors shadow focus:outline-none focus:ring-2 focus:ring-green-400"
+                        aria-label="Continuar para publicar o editar el formulario"
+                    >
+                        Continuar
+                        <ArrowRightCircleIcon className="h-5 w-5 ml-1 text-white animate-pulse" aria-hidden="true" />
+                    </Link>
+                </div>
+                <p className="text-xs text-green-600 mt-1 ml-10">
+                    Haz clic en “Continuar” para publicar o editar tu formulario.
                 </p>
             </div>}
 
