@@ -101,8 +101,8 @@ export default function FormResponses() {
   const allQuestions = {};
   responses.forEach((response) => {
     response.answers.forEach((ans) => {
-      if (ans.question && ans.question.id) {
-        allQuestions[ans.question.id] = ans.question;
+      if (ans.question && ans.questionId) {
+        allQuestions[ans.questionId] = ans.question;
       }
     });
   });
