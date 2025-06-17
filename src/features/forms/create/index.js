@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { create, updateById } from "./api";
+import { create } from "./api";
 import QuestionItem from '../components/question-item';
 import {
     CloudArrowUpIcon,
@@ -143,58 +143,6 @@ const EditFormPage = () => {
         }*/
     };
 
-    const onPublish = async () => {
-        try {
-            // Reset estados
-            setError(null);
-            setSuccess(null);
-            setLoading(true);
-
-            // Validación básica de formData
-            if (!formData || !formData.questions) {
-                throw new Error('Datos del formulario incompletos');
-            }
-
-            // Procesamiento de imágenes y preparación de datos
-            const { updatedQuestions, filesToUpload } = processFormQuestions(formData.questions);
-
-            // Estructura final para enviar al backend
-            const payload = {
-                ...formData,
-                questions: updatedQuestions,
-                isPublic: true,
-            };
-
-            // Debug (solo en desarrollo)
-            if (process.env.NODE_ENV === 'development') {
-                console.debug('Payload a enviar:', payload);
-            }
-
-            // Llamada a la API
-            const response = await updateById(payload.id, payload);
-
-            if (response.code !== 200) {
-                throw new Error(response.message || 'No fue posible obtener una respuesta del servidor. Por favor, revisa tu conexión o intenta más tarde.');
-            }
-
-            setFormData(prev => ({
-                ...prev,
-                id: response.data.id,
-                isPublic: true,
-            }));
-
-            setSuccess(response.message || 'Tu formulario fue publicado correctamente. Ahora puedes compartirlo o recibir respuestas.');
-
-            if (filesToUpload.length > 0) {
-                await uploadFiles(filesToUpload, response.data.id);
-            }
-        } catch (error) {
-            handleSaveError(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const addQuestion = () => {
         const newQuestions = [
             ...formData.questions || [],
@@ -304,7 +252,7 @@ const EditFormPage = () => {
                 </p>
             </div>}
 
-            <div className="bg-white p-4 border rounded shadow">
+            {!success && <div className="bg-white p-4 border rounded shadow">
                 <div className="flex justify-between items-start">
                     <div className="w-full">
                         <InputTitle
@@ -340,9 +288,9 @@ const EditFormPage = () => {
                         {formData.isPublic ? 'Público' : 'Privado'}
                     </span>
                 </div>
-            </div>
+            </div>}
 
-            <div className="mt-6 space-y-4">
+            {!success && <div className="mt-6 space-y-4">
                 {formData.questions && formData.questions.map((question, index) => (
                     <QuestionItem
                         key={index}
@@ -353,7 +301,7 @@ const EditFormPage = () => {
                         addQuestion={addQuestion}
                     />
                 ))}
-            </div>
+            </div>}
         </div>
     );
 };
