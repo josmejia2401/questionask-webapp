@@ -2,6 +2,8 @@ import React, { useState, useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { findById } from "./api";
 import { ArrowPathIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
+import QuestionStatsChart from "../stats/question-stats-chart";
+import FormStatsChart from "../stats/forms-stats-chart";
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
@@ -10,7 +12,9 @@ export default function FormResponses() {
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [expanded, setExpanded] = useState({}); // controla el expand/collapse
+  const [expanded, setExpanded] = useState({});
+  const [questionChartExpanded, setQuestionChartExpanded] = useState({});
+  const [statsExpanded, setStatsExpanded] = useState(false);
 
   const fetchForm = useCallback(async () => {
     try {
@@ -39,6 +43,15 @@ export default function FormResponses() {
   const toggleExpand = (id) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
+
+  const toggleQuestionChart = (questionId) => {
+    setQuestionChartExpanded((prev) => ({
+      ...prev,
+      [questionId]: !prev[questionId],
+    }));
+  };
+
+  const toggleStats = () => setStatsExpanded(v => !v); // <---
 
   if (loading) {
     return (
@@ -84,9 +97,43 @@ export default function FormResponses() {
   if (responses.length === 0)
     return <p className="text-center mt-4 text-gray-600">No hay respuestas aún.</p>;
 
+  // Reunir todas las preguntas únicas de las respuestas
+  const allQuestions = {};
+  responses.forEach((response) => {
+    response.answers.forEach((ans) => {
+      if (ans.question && ans.question.id) {
+        allQuestions[ans.question.id] = ans.question;
+      }
+    });
+  });
+  const uniqueQuestions = Object.values(allQuestions);
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold mb-6 text-center text-indigo-700">Respuestas del Formulario</h2>
+
+      {/* Expand/collapse de estadísticas */}
+      <div className="mb-4">
+        <button
+          onClick={toggleStats}
+          className="flex items-center gap-2 font-medium text-indigo-700 hover:underline focus:outline-none"
+          aria-expanded={statsExpanded}
+        >
+          {statsExpanded
+            ? <ChevronUpIcon className="w-5 h-5" />
+            : <ChevronDownIcon className="w-5 h-5" />}
+          {statsExpanded ? "Ocultar estadísticas" : "Ver estadísticas"}
+        </button>
+        <div
+          className={`transition-all duration-300 ${statsExpanded ? "max-h-[1500px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
+        >
+          {statsExpanded && (
+            <div className="mt-4 mb-8">
+              <FormStatsChart formId={id} />
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="flex justify-end mb-4">
         <button
@@ -120,10 +167,32 @@ export default function FormResponses() {
               <div className="px-4 pb-4 space-y-3 transition-all duration-200">
                 {response.answers.map((ans) => (
                   <div key={ans.id} className="bg-gray-100 p-3 rounded">
-                    <p className="text-sm font-medium text-gray-700">
-                      {ans.question?.questionText || "Pregunta desconocida"}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-700">
+                        {ans.question?.questionText || "Pregunta desconocida"}
+                      </p>
+                      <button
+                        onClick={() => toggleQuestionChart(ans.questionId)}
+                        className="flex items-center text-indigo-600 text-xs hover:underline focus:outline-none ml-2"
+                        type="button"
+                      >
+                        {questionChartExpanded[ans.questionId] ? (
+                          <>
+                            <ChevronUpIcon className="w-4 h-4" /> Ocultar gráfico
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDownIcon className="w-4 h-4" /> Ver gráfico
+                          </>
+                        )}
+                      </button>
+                    </div>
                     <p className="text-sm text-gray-800 mt-1">{ans.answerText || "Sin respuesta"}</p>
+                    {questionChartExpanded[ans.questionId] && ans.questionId && (
+                      <div className="mt-4">
+                        <QuestionStatsChart questionId={ans.questionId} />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
