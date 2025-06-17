@@ -189,9 +189,9 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
 
                         const currentOption = typeof updatedOptions[idx] === 'object'
                           ? updatedOptions[idx]
-                          : { text: updatedOptions[idx], images: [] };
+                          : { text: updatedOptions[idx], files: [] };
 
-                        updatedOptions[idx] = { ...currentOption, images: files };
+                        updatedOptions[idx] = { ...currentOption, files: files };
                         updateQuestion(index, { ...question, options: updatedOptions });
                       }}
                       className="hidden"
@@ -199,9 +199,9 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
                   </label>
 
                   
-                  {option.images && option.images.length > 0 && (
+                  {option.files && option.files.length > 0 && (
                     <div className="flex gap-2 mt-2">
-                      {option.images.map((img, i) => (
+                      {option.files.map((img, i) => (
                         <img
                           key={i}
                           src={img.path || URL.createObjectURL(img)}
@@ -219,7 +219,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
             <button
               type="button"
               onClick={() => {
-                const updatedOptions = [...question.options, { text: '', images: [] }];
+                const updatedOptions = [...question.options, { text: '', files: [] }];
                 updateQuestion(index, { ...question, options: updatedOptions });
               }}
               className="text-indigo-600 hover:underline text-sm mt-2"
@@ -297,18 +297,18 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
 
                         const currentOption = typeof updatedOptions[idx] === 'object'
                           ? updatedOptions[idx]
-                          : { text: updatedOptions[idx], images: [] };
+                          : { text: updatedOptions[idx], files: [] };
 
-                        updatedOptions[idx] = { ...currentOption, images: files };
+                        updatedOptions[idx] = { ...currentOption, files: files };
                         updateQuestion(index, { ...question, options: updatedOptions });
                       }}
                     />
                   </label>
 
                   
-                  {option.images && option.images.length > 0 && (
+                  {option.files && option.files.length > 0 && (
                     <div className="flex gap-2 mt-2">
-                      {option.images.map((img, i) => (
+                      {option.files.map((img, i) => (
                         <img
                           key={i}
                           src={URL.createObjectURL(img)}
@@ -325,7 +325,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
             <button
               type="button"
               onClick={() => {
-                const updatedOptions = [...question.options, { text: '', images: [] }];
+                const updatedOptions = [...question.options, { text: '', files: [] }];
                 updateQuestion(index, { ...question, options: updatedOptions });
               }}
               className="text-indigo-600 hover:underline text-sm mt-2"
