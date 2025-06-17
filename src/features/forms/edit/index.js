@@ -129,7 +129,7 @@ const EditFormPage = () => {
             ...question,
             options: question.options?.map(option => ({
                 ...option,
-                images: option.images?.map(image => {
+                files: option.files?.map(image => {
                     if (image instanceof File) {
                         filesToUpload.push({
                             file: image,
