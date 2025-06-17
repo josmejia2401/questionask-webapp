@@ -46,7 +46,7 @@ const EditFormPage = () => {
             const originalForm = json.data;
             const sortedForm = {
                 ...originalForm,
-                questions: originalForm.questions
+                questions: (originalForm.questions || [])
                     .slice()
                     .sort((a, b) => a.order - b.order)
             };
