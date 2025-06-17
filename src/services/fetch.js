@@ -13,9 +13,9 @@ const buildAndThrowNewError = (error) => {
         console.error("headers", error.response.headers);
         return new CustomError(error.response.data["message"], error.response.data["code"], error.response.status, error);
     } else if (error.code === 'ERR_NETWORK') {
-        return new CustomError("¡Ups! Error en la solicitud.", error.code, 500, error);
+        return new CustomError("¡Lo sentimos! Ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente.", error.code, 500, error);
     } else {
-        return new CustomError("¡Ups! Error en la solicitud.", error.code, 500, error);
+        return new CustomError("¡Lo sentimos! Ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente.", error.code, 500, error);
     }
 }
 
