@@ -75,7 +75,6 @@ class Layout extends React.Component {
     this.detectChangesStorage = this.detectChangesStorage.bind(this);
     this.goToAuth = this.goToAuth.bind(this);
     this.handleToggleMobileSubmenu = this.handleToggleMobileSubmenu.bind(this);
-    this.handleItemClick = this.handleItemClick.bind(this);
   }
 
   componentDidMount() {
@@ -135,17 +134,6 @@ class Layout extends React.Component {
       }
     }));
   }
-
-  handleItemClick = async (e, item) => {
-    e.preventDefault();
-    setLoadingItem(item.name);
-    try {
-      await item.onClick?.();
-    } finally {
-      setLoadingItem(null);
-      window.location.href = item.href;
-    }
-  };
 
   render() {
     const { navigation, user, userNavigation, mobileSubmenusOpen } = this.state;
@@ -378,9 +366,22 @@ class Layout extends React.Component {
                       as="a"
                       href={item.href}
                       className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
-                      onClick={(e) => handleItemClick(e, item)}
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        this.setState({
+                          loadingItem: item.name
+                        });
+                        try {
+                          await item.onClick?.();
+                        } finally {
+                          this.setState({
+                            loadingItem: null
+                          });
+                          window.location.href = item.href;
+                        }
+                      }}
                     >
-                      {loadingItem === item.name ? "Cargando..." : item.name}
+                      {this.state.loadingItem === item.name ? 'Cargando...' : item.name}
                     </DisclosureButton>
                   ))}
                 </div>
