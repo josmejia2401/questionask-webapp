@@ -5,19 +5,29 @@ class RadioGroup extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            error: ''
+            error: '',
+            customInput: '', // para el campo libre
+            selectedValue: props.value || '',
         };
     }
 
     handleChange = (event) => {
-        const { onChange } = this.props;
         const selectedValue = event.target.value;
         const error = this.validar(selectedValue);
-        this.setState({ error });
 
-        if (onChange) {
-            onChange(selectedValue);
-        }
+        this.setState({ selectedValue, error }, () => {
+            const isOther = this.esOpcionOtra(selectedValue);
+            if (!isOther) {
+                this.setState({ customInput: '' }); // limpiar si no es "otro"
+                this.props.onChange?.(selectedValue);
+            }
+        });
+    };
+
+    handleCustomInputChange = (event) => {
+        const customInput = event.target.value;
+        this.setState({ customInput });
+        this.props.onChange?.(customInput);
     };
 
     validar = (value) => {
@@ -28,9 +38,15 @@ class RadioGroup extends Component {
         return '';
     };
 
+    esOpcionOtra = (text) => {
+        return ['otro', 'otra', 'otro/a', 'otra opción'].includes(text.trim().toLowerCase());
+    };
+
     render() {
-        const { options, name, label, value, required, disabled } = this.props;
-        const { error } = this.state;
+        const { options, name, label, required, disabled } = this.props;
+        const { error, customInput, selectedValue } = this.state;
+
+        const mostrarInputLibre = this.esOpcionOtra(selectedValue);
 
         return (
             <div className="mb-4">
@@ -45,15 +61,25 @@ class RadioGroup extends Component {
                                 type="radio"
                                 name={name}
                                 value={opt.text}
-                                checked={value === opt.text}
+                                checked={selectedValue === opt.text}
                                 onChange={this.handleChange}
                                 disabled={disabled}
-                                className={`h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500`}
+                                className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                             />
                             <span>{opt.text}</span>
                         </label>
                     ))}
                 </div>
+
+                {mostrarInputLibre && (
+                    <input
+                        type="text"
+                        value={customInput}
+                        onChange={this.handleCustomInputChange}
+                        placeholder="Escribe tu respuesta"
+                        className="mt-3 w-full border rounded px-3 py-2"
+                    />
+                )}
 
                 {error && (
                     <p className="mt-1 text-sm text-red-600">{error}</p>

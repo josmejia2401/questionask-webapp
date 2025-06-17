@@ -201,7 +201,7 @@ export default function FormQuestions() {
                             Enviar nueva respuesta
                         </button>
                         <button
-                            onClick={() => navigate("/")}
+                            onClick={() => navigate("https://questionask-landing.netlify.app")}
                             className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition"
                         >
                             Volver al inicio

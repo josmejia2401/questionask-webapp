@@ -97,17 +97,6 @@ export default function FormResponses() {
   if (responses.length === 0)
     return <p className="text-center mt-4 text-gray-600">No hay respuestas aún.</p>;
 
-  // Reunir todas las preguntas únicas de las respuestas
-  const allQuestions = {};
-  responses.forEach((response) => {
-    response.answers.forEach((ans) => {
-      if (ans.question && ans.questionId) {
-        allQuestions[ans.questionId] = ans.question;
-      }
-    });
-  });
-  const uniqueQuestions = Object.values(allQuestions);
-
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold mb-6 text-center text-indigo-700">Respuestas del Formulario</h2>

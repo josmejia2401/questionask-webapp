@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrashIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { TrashIcon } from '@heroicons/react/24/outline';
 import Select from '../../../components/select';
 import Checkbox from '../../../components/checkbox';
 import Input from '../../../components/input';
@@ -139,83 +139,64 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
       {question.type === 'multiple' && (
         <div>
           <label className="block font-medium mb-2">Varias opciones</label>
+
+          {/* Descripción informativa */}
+          <p className="text-sm text-gray-500 mb-3">
+            Si agregas una opción como <strong>"otro"</strong>, <strong>"otra"</strong>, <strong>"otro/a"</strong> o <strong>"otra opción"</strong>,
+            el usuario final podrá escribir su propia respuesta cuando seleccione esa opción.
+          </p>
+
           <div className="space-y-4">
-            {question.options.map((option, idx) => (
-              <div key={idx} className="flex flex-col gap-2 border p-3 rounded-md">
-                <div className="flex items-center gap-3">
-                  {/* Radio button (solo para mostrar, no seleccionado por defecto) */}
-                  <input type="radio" disabled className="form-radio h-4 w-4 text-indigo-600" />
+            {question.options.map((option, idx) => {
+              const isOther = ['otro', 'otra', 'otro/a', 'otra opción'].includes(
+                option.text.trim().toLowerCase()
+              );
 
-                  {/* Texto editable */}
-                  <input
-                    type="text"
-                    value={option.text}
-                    onChange={(e) => {
-                      const updatedOptions = [...question.options];
-                      updatedOptions[idx].text = e.target.value;
-                      updatedOptions[idx].createdAt = new Date().toISOString();
-                      updateQuestion(index, { ...question, options: updatedOptions });
-                    }}
-                    className="flex-1 border rounded px-3 py-1"
-                    placeholder="Texto de la opción"
-                  />
+              return (
+                <div key={idx} className="flex flex-col gap-2 border p-3 rounded-md">
+                  <div className="flex items-center gap-3">
+                    {/* Radio (solo visual) */}
+                    <input type="radio" disabled className="form-radio h-4 w-4 text-indigo-600" />
 
-                  {/* Botón eliminar */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const updatedOptions = question.options.filter((_, i) => i !== idx);
-                      updateQuestion(index, { ...question, options: updatedOptions });
-                    }}
-                    className="text-red-600 hover:text-red-800"
-                    title="Eliminar opción"
-                  >
-                    <TrashIcon className="h-5 w-5" />
-                  </button>
-                </div>
-
-                {/* Input para subir imágenes */}
-                {/*<div className="flex items-center gap-3 ml-7">
-                  <label className="text-sm text-gray-600 flex items-center gap-1 cursor-pointer">
-                    <PhotoIcon className="h-4 w-4" />
-                    Subir imagen
+                    {/* Campo de texto editable */}
                     <input
-                      type="file"
-                      accept="image/*"
-                      multiple
+                      type="text"
+                      value={option.text}
                       onChange={(e) => {
-                        const files = Array.from(e.target.files || []).slice(0, 3);
                         const updatedOptions = [...question.options];
-
-                        const currentOption = typeof updatedOptions[idx] === 'object'
-                          ? updatedOptions[idx]
-                          : { text: updatedOptions[idx], files: [] };
-
-                        updatedOptions[idx] = { ...currentOption, files: files };
+                        updatedOptions[idx].text = e.target.value;
+                        updatedOptions[idx].createdAt = new Date().toISOString();
                         updateQuestion(index, { ...question, options: updatedOptions });
                       }}
-                      className="hidden"
+                      className="flex-1 border rounded px-3 py-1"
+                      placeholder="Texto de la opción"
                     />
-                  </label>
 
-                  
-                  {option.files && option.files.length > 0 && (
-                    <div className="flex gap-2 mt-2">
-                      {option.files.map((img, i) => (
-                        <img
-                          key={i}
-                          src={img.path || URL.createObjectURL(img)}
-                          alt={`Imagen ${i + 1}`}
-                          className="h-16 w-16 object-cover rounded"
-                        />
-                      ))}
+                    {/* Botón eliminar */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updatedOptions = question.options.filter((_, i) => i !== idx);
+                        updateQuestion(index, { ...question, options: updatedOptions });
+                      }}
+                      className="text-red-600 hover:text-red-800"
+                      title="Eliminar opción"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {/* Indicador si es "otro" */}
+                  {isOther && (
+                    <div className="text-sm text-gray-500 ml-7">
+                      Esta opción permitirá al usuario ingresar su propia respuesta.
                     </div>
                   )}
-                </div>*/}
-              </div>
-            ))}
+                </div>
+              );
+            })}
 
-            {/* Botón para añadir opción */}
+            {/* Botón añadir opción */}
             <button
               type="button"
               onClick={() => {
@@ -245,6 +226,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
           </div>
         </div>
       )}
+
 
 
       {/* Tipo: Casillas */}
