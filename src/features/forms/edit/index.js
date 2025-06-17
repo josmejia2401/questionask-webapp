@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { updateById, findById } from "./api";
+import { updateById, findById, publishById } from "./api";
 import QuestionItem from '../components/question-item';
 import {
     CloudArrowUpIcon,
@@ -211,7 +211,7 @@ const EditFormPage = () => {
             }
 
             // Llamada a la API
-            const response = await updateById(id, payload);
+            const response = await publishById(id, payload);
 
             if (response.code !== 200) {
                 throw new Error(response.message || 'Error en la respuesta del servidor');

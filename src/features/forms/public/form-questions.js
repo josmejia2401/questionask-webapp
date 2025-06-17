@@ -193,24 +193,26 @@ export default function FormQuestions() {
             )}
 
 
-            <div className="space-y-6">
-                {formData.questions.map((q) => (
-                    <div key={q.id} className="border p-4 rounded-md shadow-sm bg-white transition transform hover:scale-[1.01]">
-                        {renderInput(q, answers[q.id], (val) => handleChange(q, val))}
-                    </div>
-                ))}
-            </div>
+            {!success && (<div>
+                <div className="space-y-6">
+                    {formData.questions.map((q) => (
+                        <div key={q.id} className="border p-4 rounded-md shadow-sm bg-white transition transform hover:scale-[1.01]">
+                            {renderInput(q, answers[q.id], (val) => handleChange(q, val))}
+                        </div>
+                    ))}
+                </div>
 
-            <div className="mt-6">
-                <button
-                    onClick={handleSubmit}
-                    disabled={!isFormValid}
-                    className={`px-4 py-2 rounded text-white transition ${isFormValid ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 cursor-not-allowed'
-                        }`}
-                >
-                    Enviar formulario
-                </button>
-            </div>
+                <div className="mt-6">
+                    <button
+                        onClick={handleSubmit}
+                        disabled={!isFormValid}
+                        className={`px-4 py-2 rounded text-white transition ${isFormValid ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 cursor-not-allowed'
+                            }`}
+                    >
+                        Enviar formulario
+                    </button>
+                </div>
+            </div>)}
         </div>
     );
 }

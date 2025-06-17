@@ -20,3 +20,12 @@ export const updateById = async (id, payload) => {
         throw error;
     }
 }
+
+export const publishById = async (id, payload) => {
+    try {
+        const res = await axiosInstance("https://questionask-form-ms.onrender.com").put(`/v1/api/forms/publish/${id}`, payload);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
