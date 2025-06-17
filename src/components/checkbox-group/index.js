@@ -54,7 +54,7 @@ class CheckboxGroup extends Component {
                             id={`${name}-${opt.id}`}
                             name={opt.text}
                             label={opt.text}
-                            value={opt.id}
+                            value={opt.text}
                             checked={selected.includes(opt.text)}
                             onChange={this.handleChange}
                             disabled={disabled}

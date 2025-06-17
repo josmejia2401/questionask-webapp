@@ -44,8 +44,8 @@ class RadioGroup extends Component {
                             <input
                                 type="radio"
                                 name={name}
-                                value={opt.id}
-                                checked={value === opt.id}
+                                value={opt.text}
+                                checked={value === opt.text}
                                 onChange={this.handleChange}
                                 disabled={disabled}
                                 className={`h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500`}
