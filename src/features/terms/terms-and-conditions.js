@@ -72,6 +72,27 @@ const TermsAndConditions = () => {
                         <li>El uso continuo del servicio implica la aceptación de los cambios.</li>
                     </ul>
                 </div>
+
+                <div>
+                    <h2 className="font-semibold text-indigo-600">6. Contacto y Soporte</h2>
+                    <ul className="list-disc ml-5">
+                        <li>
+                            Para reportar errores, solicitar soporte técnico o enviar sugerencias, puedes escribirnos al correo electrónico:
+                            <a
+                                href="mailto:soporte.questionask@gmail.com"
+                                className="text-indigo-600 font-medium ml-1 underline"
+                            >
+                                soporte.questionask@gmail.com
+                            </a>.
+                        </li>
+                        <li>
+                            También puedes contactarnos para realizar donaciones o expresar tu interés en contribuir con el desarrollo de QuestionAsk.
+                        </li>
+                        <li>
+                            Intentaremos responder en el menor tiempo posible, aunque no se garantiza soporte inmediato.
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <div className="mt-8 text-sm text-gray-500 italic">
