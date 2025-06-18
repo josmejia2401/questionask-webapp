@@ -123,6 +123,16 @@ class Page extends React.Component {
                         required
                     />
 
+                    {/* Enlace de recuperación de contraseña alineado a la derecha */}
+                    <div className="flex justify-end mt-1 mb-4">
+                        <Link
+                            to="/auth/request-recover-password"
+                            className="text-sm text-indigo-600 hover:underline font-medium"
+                        >
+                            ¿Olvidaste tu contraseña?
+                        </Link>
+                    </div>
+
                     <Button
                         variant="primary"
                         type="submit"
