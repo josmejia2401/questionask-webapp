@@ -72,6 +72,11 @@ const RecoverPasswordPage = () => {
                         {success}
                     </div>
                 )}
+                {success && (
+                    <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 p-3 rounded mb-4 text-center">
+                        Si no recibes el correo en unos minutos, revisa también tu bandeja de <span className="font-semibold">spam</span> o <span className="font-semibold">correo no deseado</span>.
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
