@@ -10,7 +10,6 @@ import Button from '../../../components/button';
 import { validateFieldFromProps } from '../../../utils/validators';
 
 class Page extends React.Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -18,113 +17,109 @@ class Page extends React.Component {
             isValidForm: false,
             errorMessage: null,
             successMessage: null,
+            termsAccepted: false,
+            termsError: '',
             data: {
-                firstName: {
-                    value: '',
-                    error: ''
-                },
-                lastName: {
-                    value: '',
-                    error: ''
-                },
-                email: {
-                    value: '',
-                    error: ''
-                },
-                phoneNumber: {
-                    value: '',
-                    error: ''
-                },
-                username: {
-                    value: '',
-                    error: ''
-                },
-                password: {
-                    value: '',
-                    error: ''
-                }
+                firstName: { value: '', error: '' },
+                lastName: { value: '', error: '' },
+                email: { value: '', error: '' },
+                phoneNumber: { value: '', error: '' },
+                username: { value: '', error: '' },
+                password: { value: '', error: '' }
             }
         };
-        this.propagateState = this.propagateState.bind(this);
-        this.updateState = this.updateState.bind(this);
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
+    propagateState = async () => {}
 
-    componentDidMount() { }
-
-    componentWillUnmount() { }
-
-    async propagateState() { }
-
-    updateState(payload) {
+    updateState = (payload) => {
         this.setState(prevState => ({
             ...prevState,
             ...payload
         }), this.propagateState);
     }
 
-
     handleInputChange = (event) => {
         stopPropagation(event);
         const { name, value } = event.target;
         const input = event.target;
-
         const error = validateFieldFromProps(value, input);
 
-        const updatedField = {
-            value,
-            error: error,
-        };
+        const updatedField = { value, error };
         const updatedData = {
             ...this.state.data,
             [name]: updatedField,
         };
 
-        const isValidForm = Object.values(updatedData).every((f) => f.error.length === 0);
+        // Valid if all fields have no error AND have some value
+        const isValidForm = Object.values(updatedData).every((f) => f.error.length === 0 && f.value.length > 0);
 
         this.updateState({ data: updatedData, isValidForm });
     };
 
+    handleCheckboxChange = (event) => {
+        const isChecked = event.target.checked;
+        this.setState({
+            termsAccepted: isChecked,
+            termsError: isChecked ? '' : 'Debes aceptar los Términos y Condiciones para registrarte.'
+        });
+    };
 
-    handleSubmit(event) {
+    handleSubmit = (event) => {
         stopPropagation(event);
-        const { data } = this.state;
-        const form = event.target;
-        const isValid = form.checkValidity();
-        const isValidForm = Object.keys(data).filter(key => data[key].error.length > 0).length === 0;
-        if (isValid && isValidForm) {
-            this.updateState({
-                isValidForm: isValidForm,
-                loading: true,
-                successMessage: null,
-                errorMessage: null
+        event.preventDefault();
+        const { data, termsAccepted } = this.state;
+        const isValidForm = Object.values(data).every((f) => f.error.length === 0 && f.value.length > 0);
+
+        if (!termsAccepted) {
+            this.setState({
+                termsError: 'Debes aceptar los Términos y Condiciones para registrarte.',
+                loading: false
             });
-            const payload = buildPayloadFromForm(data);
-            payload.createdAt = new Date().toISOString();
-            payload.statusId = "PENDING";
-            register(payload).then(response => {
+            return;
+        }
+
+        if (!isValidForm) {
+            this.setState({
+                errorMessage: "Por favor, completa todos los campos correctamente.",
+                successMessage: null
+            });
+            return;
+        }
+
+        this.updateState({
+            isValidForm,
+            loading: true,
+            successMessage: null,
+            errorMessage: null
+        });
+
+        const payload = buildPayloadFromForm(data);
+        payload.createdAt = new Date().toISOString();
+        payload.statusId = "PENDING";
+
+        register(payload)
+            .then(response => {
                 this.updateState({
-                    successMessage: response.message,
+                    successMessage: response.message || "¡Registro exitoso! Revisa tu correo para activar tu cuenta.",
                     errorMessage: null,
-                    data: resetFormValues(data)
+                    data: resetFormValues(data),
+                    termsAccepted: false
                 });
-            }).catch(err => {
+            })
+            .catch(err => {
                 this.updateState({
-                    errorMessage: err.message,
+                    errorMessage: err.message || "¡Lo sentimos! Ocurrió un error al procesar tu registro. Intenta nuevamente.",
                     successMessage: null
                 });
-            }).finally(() => {
-                this.updateState({
-                    loading: false
-                });
+            })
+            .finally(() => {
+                this.updateState({ loading: false });
             });
-        }
     }
 
     render() {
-        const { data, loading, errorMessage, successMessage, isValidForm } = this.state;
+        const { data, loading, errorMessage, successMessage, isValidForm, termsAccepted, termsError } = this.state;
 
         return (
             <div className="w-full max-w-md mt-10 p-8 rounded-2xl shadow-lg bg-white">
@@ -138,11 +133,15 @@ class Page extends React.Component {
                 </p>
 
                 {errorMessage && (
-                    <p className="text-red-500 text-sm text-center mb-4">{errorMessage}</p>
+                    <div className="bg-red-50 border border-red-300 text-red-700 p-3 rounded mb-4 text-center animate-shake">
+                        {errorMessage}
+                    </div>
                 )}
 
                 {successMessage && (
-                    <p className="text-green-500 text-sm text-center mb-4">{successMessage}</p>
+                    <div className="bg-green-50 border border-green-300 text-green-700 p-3 rounded mb-4 text-center animate-fade-in">
+                        {successMessage}
+                    </div>
                 )}
 
                 <form
@@ -150,7 +149,6 @@ class Page extends React.Component {
                     noValidate
                     className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2"
                 >
-                    {/* Nombres */}
                     <div className="sm:col-span-2">
                         <TextInputField
                             label="Nombres"
@@ -165,7 +163,6 @@ class Page extends React.Component {
                         />
                     </div>
 
-                    {/* Apellidos */}
                     <div className="sm:col-span-2">
                         <TextInputField
                             label="Apellidos"
@@ -180,7 +177,6 @@ class Page extends React.Component {
                         />
                     </div>
 
-                    {/* Correo */}
                     <EmailInputField
                         label="Correo"
                         id="email"
@@ -193,7 +189,6 @@ class Page extends React.Component {
                         required
                     />
 
-                    {/* Celular */}
                     <TextInputField
                         label="Celular"
                         id="phoneNumber"
@@ -206,7 +201,6 @@ class Page extends React.Component {
                         required
                     />
 
-                    {/* Usuario */}
                     <TextInputField
                         label="Usuario"
                         id="username"
@@ -219,36 +213,55 @@ class Page extends React.Component {
                         required
                     />
 
-                    {/* Contraseña */}
                     <PasswordInputField
                         label="Contraseña"
                         id="password"
                         name="password"
                         value={data.password.value}
-                        error={data.password.error}
                         onChange={this.handleInputChange}
+                        error={data.password.error}
                         autoComplete="new-password"
                         disabled={loading}
                         required
                     />
 
-                    {/* Botón ocupa ambas columnas */}
+                    {/* Checkbox de términos */}
+                    <div className="sm:col-span-2 mt-2">
+                        <label className="flex items-start gap-2 text-sm text-gray-700">
+                            <input
+                                type="checkbox"
+                                className="mt-1"
+                                checked={termsAccepted}
+                                onChange={this.handleCheckboxChange}
+                                disabled={loading}
+                            />
+                            <span>
+                                Acepto los{' '}
+                                <Link to="/terms" className="text-indigo-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                                    Términos y Condiciones
+                                </Link>
+                            </span>
+                        </label>
+                        {termsError && (
+                            <p className="text-red-500 text-sm mt-1">{termsError}</p>
+                        )}
+                    </div>
+
                     <div className="sm:col-span-2 mt-3">
                         <Button
                             variant="primary"
                             type="submit"
                             loading={loading}
-                            disabled={!isValidForm}
+                            disabled={!isValidForm || !termsAccepted || loading}
                             fullWidth
                         >
-                            Crear
+                            {loading ? "Registrando..." : "Crear"}
                         </Button>
                     </div>
                 </form>
-
-
             </div>
         );
     }
 }
-export default Page; 
+
+export default Page;
