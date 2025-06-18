@@ -17,6 +17,7 @@ const EditFormPage = lazy(() => import('../features/forms/edit'));
 const FormResponsePage = lazy(() => import('../features/forms/form-responses'));
 const PublicFormQuestionPage = lazy(() => import('../features/forms/public/form-questions'));
 const PublicTermsPage = lazy(() => import('../features/terms/terms-and-conditions'));
+const PublicPrivacyPage = lazy(() => import('../features/terms/privacy-policy'));
 
 const routes = [
   {
@@ -89,6 +90,12 @@ const routes = [
     path: '/terms',
     element: (
       <PublicTermsPage />
+    ),
+  },
+  {
+    path: '/privacy',
+    element: (
+      <PublicPrivacyPage />
     ),
   },
   {

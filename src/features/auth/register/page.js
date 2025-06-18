@@ -30,7 +30,7 @@ class Page extends React.Component {
         };
     }
 
-    propagateState = async () => {}
+    propagateState = async () => { }
 
     updateState = (payload) => {
         this.setState(prevState => ({
@@ -225,7 +225,7 @@ class Page extends React.Component {
                         required
                     />
 
-                    {/* Checkbox de términos */}
+                    {/* Checkbox de términos y privacidad */}
                     <div className="sm:col-span-2 mt-2">
                         <label className="flex items-start gap-2 text-sm text-gray-700">
                             <input
@@ -239,13 +239,17 @@ class Page extends React.Component {
                                 Acepto los{' '}
                                 <Link to="/terms" className="text-indigo-600 hover:underline" target="_blank" rel="noopener noreferrer">
                                     Términos y Condiciones
-                                </Link>
+                                </Link>{' '}y la{' '}
+                                <Link to="/privacy" className="text-indigo-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                                    Política de Privacidad
+                                </Link>.
                             </span>
                         </label>
                         {termsError && (
                             <p className="text-red-500 text-sm mt-1">{termsError}</p>
                         )}
                     </div>
+
 
                     <div className="sm:col-span-2 mt-3">
                         <Button
