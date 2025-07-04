@@ -9,6 +9,7 @@ const FormCard = ({ form, onDelete }) => {
   const [loading, setLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [questionsExpanded, setQuestionsExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleDelete = (e) => {
     e.stopPropagation();
@@ -29,6 +30,14 @@ const FormCard = ({ form, onDelete }) => {
     e.stopPropagation();
     setQuestionsExpanded((v) => !v);
   };
+
+  const handleCopyLink = () => {
+    const publicUrl = `${window.location.origin}/public/form?id=${form.id}`;
+    navigator.clipboard.writeText(publicUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
 
   return (
     <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow mb-6 group">
@@ -60,6 +69,26 @@ const FormCard = ({ form, onDelete }) => {
               aria-label="Respuestas">
               <ChatBubbleLeftEllipsisIcon className="w-5 h-5" aria-hidden="true"></ChatBubbleLeftEllipsisIcon>
             </Link>
+            {form.isPublic && (
+              <>
+                <ButtonComponent
+                  onClick={handleCopyLink}
+                  className="p-1 text-gray-400 hover:text-green-600 transition-colors opacity-0 group-hover:opacity-100"
+                  aria-label="Copiar link público"
+                  icon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 17a4 4 0 01-4-4V7a4 4 0 014-4h8a4 4 0 014 4v6a4 4 0 01-4 4m-8 0a4 4 0 004 4m0-4a4 4 0 01-4-4" />
+                    </svg>
+                  }
+                  text=""
+                />
+                {copied && (
+                  <span className="ml-2 text-xs text-green-600 font-medium animate-fade-in">
+                    ¡Enlace copiado!
+                  </span>
+                )}
+              </>
+            )}
             <span className={`px-2 py-1 text-xs rounded ${form.isPublic
               ? 'bg-green-100 text-green-800'
               : 'bg-yellow-100 text-yellow-800'

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { updateById, findById, publishById } from "./api";
 import QuestionItem from '../components/question-item';
 import {
@@ -16,6 +16,7 @@ import TextareaTitle from '../../../components/input-title';
 const useQuery = () => new URLSearchParams(useLocation().search);
 
 const EditFormPage = () => {
+    const endQuestionsRef = useRef(null);
     const [id] = useState(useQuery().get('id'));
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
@@ -28,11 +29,6 @@ const EditFormPage = () => {
     const trackError = (error, context) => {
         console.error(context, error);
     };
-
-    const hideError = (e) => {
-        setError(null);
-        setSuccess(null);
-    }
 
     const fetchForm = useCallback(async () => {
         try {
@@ -248,6 +244,12 @@ const EditFormPage = () => {
             },
         ];
         setFormData({ ...formData, questions: newQuestions });
+
+        setTimeout(() => {
+            if (endQuestionsRef.current) {
+                endQuestionsRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100);
     };
 
     const updateQuestion = (index, updatedQuestion) => {
@@ -320,7 +322,7 @@ const EditFormPage = () => {
                 Crear Formulario: {formData.title}
             </h1>
 
-            <div className="flex flex-wrap gap-3 mb-4">
+            <div className="sticky top-0 z-30 bg-white py-3 flex flex-wrap gap-3 mb-4 shadow border-b">
                 <ButtonComponent
                     onClick={addQuestion}
                     className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
@@ -328,7 +330,6 @@ const EditFormPage = () => {
                     icon={<PlusCircleIcon className="w-5 h-5" />}
                     text="Añadir pregunta">
                 </ButtonComponent>
-
                 <ButtonComponent
                     onClick={() => handleSave(false)}
                     className="flex items-center gap-2 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
@@ -336,7 +337,6 @@ const EditFormPage = () => {
                     text={`Guardar`}
                     icon={<CloudArrowUpIcon className="w-5 h-5" />}>
                 </ButtonComponent>
-
                 {formData.isPublic && (
                     <ButtonComponent
                         onClick={() => setShowShareUrl(!showShareUrl)}
@@ -345,7 +345,6 @@ const EditFormPage = () => {
                         text={showShareUrl ? "Ocultar enlace" : "Compartir"}
                     />
                 )}
-
                 {!formData.isPublic && <ButtonComponent
                     onClick={onPublish}
                     className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -354,6 +353,7 @@ const EditFormPage = () => {
                     disabled={!formData.id || loading}>
                 </ButtonComponent>}
             </div>
+
 
             {showShareUrl && (
                 <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
@@ -447,6 +447,8 @@ const EditFormPage = () => {
                         addQuestion={addQuestion}
                     />
                 ))}
+                {/* Ref para scroll automático */}
+                <div ref={endQuestionsRef} />
             </div>
         </div>
     );

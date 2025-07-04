@@ -7,33 +7,41 @@ import Input from '../../../components/input';
 const typeValues = [
   {
     id: "short",
-    name: "Respuesta corta"
+    name: "Respuesta corta",
+    description: "Campo para respuestas breves de texto."
   },
   {
     id: "long",
-    name: "Respuesta larga"
+    name: "Respuesta larga",
+    description: "Campo para respuestas largas de texto o párrafos."
   },
   {
     id: "multiple",
-    name: "Varias opciones"
+    name: "Opción única",
+    description: "El usuario puede elegir solo una opción (radio buttons)."
   },
   {
     id: "checkbox",
-    name: "Casillas"
+    name: "Múltiples opciones",
+    description: "El usuario puede marcar varias opciones (checkboxes)."
   },
   {
     id: "rating",
-    name: "Calificación"
+    name: "Calificación",
+    description: "Permite seleccionar un valor de calificación, por ejemplo estrellas o puntos."
   },
   {
     id: "date",
-    name: "Fecha"
+    name: "Fecha",
+    description: "Selecciona una fecha."
   },
   {
     id: "time",
-    name: "Hora"
+    name: "Hora",
+    description: "Selecciona una hora."
   }
 ];
+
 
 const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
   const handleChange = (e) => {
@@ -138,7 +146,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
 
       {question.type === 'multiple' && (
         <div>
-          <label className="block font-medium mb-2">Varias opciones</label>
+          <label className="block font-medium mb-2">Opciones</label>
 
           {/* Descripción informativa */}
           <p className="text-sm text-gray-500 mb-3">
@@ -168,6 +176,20 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
                         updatedOptions[idx].createdAt = new Date().toISOString();
                         updateQuestion(index, { ...question, options: updatedOptions });
                       }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          // Solo agregar si el texto no está vacío
+                          if (option.text.trim() !== "") {
+                            const updatedOptions = [
+                              ...question.options,
+                              { text: '', files: [] }
+                            ];
+                            updateQuestion(index, { ...question, options: updatedOptions });
+                          }
+                        }
+                      }}
+
                       className="flex-1 border rounded px-3 py-1"
                       placeholder="Texto de la opción"
                     />
@@ -246,6 +268,20 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
                       updatedOptions[idx].text = e.target.value;
                       updateQuestion(index, { ...question, options: updatedOptions });
                     }}
+
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (option.text.trim() !== "") {
+                          const updatedOptions = [
+                            ...question.options,
+                            { text: '', files: [] }
+                          ];
+                          updateQuestion(index, { ...question, options: updatedOptions });
+                        }
+                      }
+                    }}
+
                     className="flex-1 border rounded px-3 py-1"
                     placeholder="Texto de la opción"
                   />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { create } from "./api";
 import QuestionItem from '../components/question-item';
 import {
@@ -12,10 +12,16 @@ import TextareaTitle from '../../../components/input-title';
 import { Link } from 'react-router-dom';
 
 const EditFormPage = () => {
+    const endQuestionsRef = useRef(null);
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+
+    useEffect(() => {
+        if (error) setError(null);
+        // eslint-disable-next-line
+    }, [formData]);
 
     const trackError = (error, context) => {
         console.error(context, error);
@@ -27,6 +33,7 @@ const EditFormPage = () => {
     }
 
     const handleSave = async () => {
+        if (loading) return;
         try {
             // Reset estados
             setError(null);
@@ -57,7 +64,7 @@ const EditFormPage = () => {
             // Llamada a la API
             const response = await create(payload);
 
-            if (response.code !== 201) {
+            if (response.code !== 201 || !response.data?.id) {
                 throw new Error(response.message || 'No fue posible obtener una respuesta del servidor. Por favor, revisa tu conexión o intenta más tarde.');
             }
 
@@ -155,6 +162,12 @@ const EditFormPage = () => {
             },
         ];
         setFormData({ ...formData, questions: newQuestions });
+
+        setTimeout(() => {
+            if (endQuestionsRef.current) {
+                endQuestionsRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100);
     };
 
     const updateQuestion = (index, updatedQuestion) => {
@@ -230,27 +243,26 @@ const EditFormPage = () => {
             </div>}
 
             {!success &&
-                <>
+                <div className="sticky">
                     <h1 className="text-2xl font-bold text-gray-800 mb-6">
                         Crear Formulario: {formData.title}
                     </h1>
 
-                    <div className="flex flex-wrap gap-3 mb-4">
+                    <div className="sticky top-0 z-30 bg-white py-3 flex gap-3 mb-4 shadow border-b">
                         <ButtonComponent
                             onClick={addQuestion}
                             className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
                             disabled={formData.id || loading}
                             icon={<PlusCircleIcon className="w-5 h-5" />}
-                            text="Añadir pregunta">
-                        </ButtonComponent>
-
+                            text="Añadir pregunta"
+                        />
                         <ButtonComponent
                             onClick={() => handleSave(false)}
                             className="flex items-center gap-2 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
                             disabled={formData.id || loading}
-                            text={`Guardar`}
-                            icon={<CloudArrowUpIcon className="w-5 h-5" />}>
-                        </ButtonComponent>
+                            text="Guardar"
+                            icon={<CloudArrowUpIcon className="w-5 h-5" />}
+                        />
                     </div>
 
                     <div className="bg-white p-4 border rounded shadow">
@@ -302,8 +314,10 @@ const EditFormPage = () => {
                                 addQuestion={addQuestion}
                             />
                         ))}
+                        {/* Ref para hacer scroll al final */}
+                        <div ref={endQuestionsRef} />
                     </div>
-                </>}
+                </div>}
         </div>
     );
 };
