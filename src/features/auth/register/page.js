@@ -1,6 +1,7 @@
 import * as React from 'react';
 import "./styles.css";
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { register } from './api';
 import { buildPayloadFromForm, resetFormValues, stopPropagation } from '../../../utils/utils';
 import TextInputField from '../../../components/form-builder/fields/text-input-field';
@@ -8,6 +9,13 @@ import PasswordInputField from '../../../components/form-builder/fields/password
 import EmailInputField from '../../../components/form-builder/fields/email-input-field';
 import Button from '../../../components/button';
 import { validateFieldFromProps } from '../../../utils/validators';
+
+function withNavigation(Component) {
+    return function WrappedComponent(props) {
+        const navigate = useNavigate();
+        return <Component {...props} navigate={navigate} />;
+    };
+}
 
 class Page extends React.Component {
     constructor(props) {
@@ -19,6 +27,9 @@ class Page extends React.Component {
             successMessage: null,
             termsAccepted: false,
             termsError: '',
+            redirectMessage: null,
+            redirectCountdown: 4,
+            showRedirect: false,
             data: {
                 firstName: { value: '', error: '' },
                 lastName: { value: '', error: '' },
@@ -28,6 +39,12 @@ class Page extends React.Component {
                 password: { value: '', error: '' }
             }
         };
+
+        this.startRedirectCountdown = this.startRedirectCountdown.bind(this);
+    }
+
+    componentWillUnmount() {
+        if (this.redirectInterval) clearInterval(this.redirectInterval);
     }
 
     propagateState = async () => { }
@@ -104,8 +121,16 @@ class Page extends React.Component {
                     successMessage: response.message || "¡Registro exitoso! Revisa tu correo para activar tu cuenta.",
                     errorMessage: null,
                     data: resetFormValues(data),
-                    termsAccepted: false
+                    termsAccepted: false,
+                    showRedirect: false,
+                    redirectCountdown: 4,
+                    redirectMessage: null
                 });
+
+                setTimeout(() => {
+                    this.setState({ showRedirect: true });
+                    this.startRedirectCountdown();
+                }, 1000);
             })
             .catch(err => {
                 this.updateState({
@@ -118,8 +143,23 @@ class Page extends React.Component {
             });
     }
 
+    startRedirectCountdown = () => {
+        this.redirectInterval = setInterval(() => {
+            if (this.state.redirectCountdown <= 1) {
+                clearInterval(this.redirectInterval);
+                // Redirige al login
+                this.props.navigate("/auth/login");
+            } else {
+                this.setState(prev => ({
+                    redirectCountdown: prev.redirectCountdown - 1,
+                    redirectMessage: `Serás redirigido al inicio de sesión en ${prev.redirectCountdown - 1} segundos...`
+                }));
+            }
+        }, 1000);
+    };
+
     render() {
-        const { data, loading, errorMessage, successMessage, isValidForm, termsAccepted, termsError } = this.state;
+        const { data, loading, errorMessage, successMessage, isValidForm, termsAccepted, termsError, showRedirect, redirectMessage } = this.state;
 
         return (
             <div className="w-full max-w-md mt-10 p-8 rounded-2xl shadow-lg bg-white">
@@ -141,6 +181,14 @@ class Page extends React.Component {
                 {successMessage && (
                     <div className="bg-green-50 border border-green-300 text-green-700 p-3 rounded mb-4 text-center animate-fade-in">
                         {successMessage}
+                    </div>
+                )}
+
+                {showRedirect && (
+                    <div className="bg-blue-50 border border-blue-300 text-blue-700 p-2 rounded mb-4 text-center animate-fade-in">
+                        {redirectMessage || `Serás redirigido al inicio de sesión en ${this.state.redirectCountdown} segundos...`}
+                        <br />
+                        <Link to="/auth/logon" className="text-indigo-600 underline">Ir al inicio de sesión ahora</Link>
                     </div>
                 )}
 
@@ -268,4 +316,4 @@ class Page extends React.Component {
     }
 }
 
-export default Page;
+export default withNavigation(Page);

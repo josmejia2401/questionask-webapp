@@ -17,7 +17,8 @@ function TextInputField({
     pattern,
     step,
     autoComplete,
-    className
+    className,
+    disabled
 }) {
     return (
         <div className="mb-2">
@@ -41,6 +42,7 @@ function TextInputField({
                 pattern={pattern}
                 step={step}
                 autoComplete={autoComplete}
+                disabled={disabled}
                 className={`${className} w-full p-2 border rounded-lg shadow-sm focus:outline-none ${error
                         ? 'bg-red-50 border-red-600 focus:ring-2 focus:ring-red-200'
                         : 'bg-gray-100 border-gray-300 focus:ring-2 focus:ring-indigo-600'

@@ -84,7 +84,7 @@ class Layout extends React.Component {
                     {/* Izquierda: íconos e info */}
                     <div className="hidden sm:flex w-1/2 bg-white text-slate-800 flex-col items-center justify-center p-8 relative">
                         <Link
-                            to={"/index"}
+                            to={"https://questionask-landing.netlify.app"}
                             className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 font-semibold z-10"
                         >
                             Ir a inicio
