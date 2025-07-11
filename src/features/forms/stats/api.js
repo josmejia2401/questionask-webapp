@@ -3,7 +3,7 @@ import { axiosInstance } from '../../../services/fetch';
 
 export const findStatsQuestion = async (id) => {
     try {
-        const res = await axiosInstance("https://questionask-stats-ms.onrender.com").get(`/v1/api/stats/questions/${id}/stats`);
+        const res = await axiosInstance("http://51.161.9.193:80").get(`/questionask/api/v1/stats/questions/${id}/stats`);
         return res.data;
     } catch (error) {
         throw error;
@@ -12,7 +12,7 @@ export const findStatsQuestion = async (id) => {
 
 export const findStatsForm = async (id) => {
     try {
-        const res = await axiosInstance("https://questionask-stats-ms.onrender.com").get(`/v1/api/stats/forms/${id}/stats`);
+        const res = await axiosInstance("http://51.161.9.193:80").get(`/questionask/api/v1/stats/forms/${id}/stats`);
         return res.data;
     } catch (error) {
         throw error;

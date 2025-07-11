@@ -108,7 +108,7 @@ const QuestionView = ({ question }) => {
                 placeholder="Respuesta larga..."
                 disabled
               />)}
-              {question.type === 'multiple' && (<div>
+              {question.type === 'radio' && (<div>
                 <h4 className="text-sm font-medium text-gray-700 mb-1">Opciones:</h4>
                 <ul className="space-y-2">
                   {question.options.map((option) => (

@@ -16,7 +16,7 @@ const typeValues = [
     description: "Campo para respuestas largas de texto o párrafos."
   },
   {
-    id: "multiple",
+    id: "radio",
     name: "Opción única",
     description: "El usuario puede elegir solo una opción (radio buttons)."
   },
@@ -144,7 +144,7 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
 
       {/* Tipo: varias opciones */}
 
-      {question.type === 'multiple' && (
+      {question.type === 'radio' && (
         <div>
           <label className="block font-medium mb-2">Opciones</label>
 
@@ -234,14 +234,14 @@ const SortableItem = ({ question, index, updateQuestion, removeQuestion }) => {
             <div className="flex items-center gap-2 mt-4">
               <input
                 type="checkbox"
-                id={`required-multiple-${index}`}
+                id={`required-radio-${index}`}
                 checked={question.required || false}
                 onChange={(e) =>
                   updateQuestion(index, { ...question, required: e.target.checked })
                 }
                 className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
               />
-              <label htmlFor={`required-multiple-${index}`} className="text-sm text-gray-700">
+              <label htmlFor={`required-radio-${index}`} className="text-sm text-gray-700">
                 ¿Es obligatorio responder esta pregunta?
               </label>
             </div>

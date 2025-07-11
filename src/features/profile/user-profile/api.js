@@ -1,7 +1,7 @@
 import { axiosInstance } from '../../../services/fetch';
 export const findById = async (id) => {
     try {
-        const res = await axiosInstance("https://questionask-users-ms.onrender.com").get(`/v1/api/users/${id}`);
+        const res = await axiosInstance("http://51.161.9.193:80").get(`/questionask/api/v1/users/${id}`);
         return res.data;
     } catch (error) {
         throw error;
@@ -11,7 +11,7 @@ export const findById = async (id) => {
 
 export const updateById = async (id, payload) => {
     try {
-        const res = await axiosInstance("https://questionask-users-ms.onrender.com").put(`/v1/api/users/${id}`, payload);
+        const res = await axiosInstance("http://51.161.9.193:80").put(`/questionask/api/v1/users/${id}`, payload);
         return res.data;
     } catch (error) {
         throw error;

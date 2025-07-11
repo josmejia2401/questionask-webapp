@@ -272,7 +272,7 @@ function renderInput(question, value, onChange) {
                     onChange={onChange}
                 />
             );
-        case 'multiple':
+        case 'radio':
             return (
                 <RadioGroup
                     options={question.options}

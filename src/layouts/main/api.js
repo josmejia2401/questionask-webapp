@@ -3,7 +3,7 @@ import { AuthStore } from '../../store/index';
 
 export const logout = async () => {
     try {
-        const res = await axiosInstance("https://questionask-auth-ms.onrender.com").post(`/v1/api/auth/logout`);
+        const res = await axiosInstance("http://51.161.9.193:80").post(`/questionask/api/v1/auth/logout`);
         AuthStore.logout();
         return res.data;
     } catch (error) {
@@ -14,7 +14,7 @@ export const logout = async () => {
 
 export const findById = async () => {
     try {
-        const res = await axiosInstance("https://questionask-users-ms.onrender.com").get(`/v1/api/users/${AuthStore.getState().tokenInfo.keyid}`);
+        const res = await axiosInstance("http://51.161.9.193:80").get(`/questionask/api/v1/users/${AuthStore.getState().tokenInfo.keyid}`);
         AuthStore.setUserInfo(res.data.data);
         return res.data;
     } catch (error) {
