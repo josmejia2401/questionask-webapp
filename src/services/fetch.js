@@ -1,71 +1,101 @@
 import axios from 'axios';
 import { CustomError } from '../utils/custom-error';
 import { AuthStore } from '../store/index';
-//const API_BASE = "http://localhost:3000";
+
+const API_BASE_URL = "https://api.jac-box.com/questionask";
+
+//const API_BASE_URL = "http://localhost:8080/questionask";
+
+// Mejor manejo de error, con fallback seguro y detalles para debugging
 const buildAndThrowNewError = (error) => {
-    console.error(error);
+    console.error("[API ERROR]", error);
     if (error && error.response) {
-        if (error.response.status === 401 || error.response.status === 403) {
+        if ([401, 403].includes(error.response.status)) {
             AuthStore.logout();
         }
-        console.error("data", error.response.data);
-        console.error("status", error.response.status);
-        console.error("headers", error.response.headers);
-        return new CustomError(error.response.data["message"], error.response.data["code"], error.response.status, error);
+        console.error("[API ERROR DATA]", error.response.data);
+        console.error("[API ERROR STATUS]", error.response.status);
+        console.error("[API ERROR HEADERS]", error.response.headers);
+        return new CustomError(
+            error.response.data?.message || "Error inesperado.",
+            error.response.data?.code || error.response.status,
+            error.response.status,
+            error
+        );
     } else if (error.code === 'ERR_NETWORK') {
-        return new CustomError("¡Lo sentimos! Ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente.", error.code, 500, error);
-    } else {
-        return new CustomError("¡Lo sentimos! Ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente.", error.code, 500, error);
+        return new CustomError(
+            "¡Lo sentimos! Error de red. Por favor, verifica tu conexión.",
+            error.code,
+            500,
+            error
+        );
     }
-}
+    return new CustomError(
+        "¡Lo sentimos! Ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente.",
+        error.code || "unknown",
+        500,
+        error
+    );
+};
 
-// object to store ongoing requests cancel tokens
+// Controla cancelación de requests duplicados
 const pendingRequests = new Map();
 
-export const axiosInstance = (API_BASE) => {
-    const axiosInstanceValue = axios.create({
-        baseURL: API_BASE,
+export const axiosInstance = (API_BASE = null) => {
+    const baseURL = API_BASE || API_BASE_URL;
+    const instance = axios.create({
+        baseURL,
+        timeout: 15000,
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
     });
-    // next we set up the Request Interceptor, this logic triggers
-    // before each request that we send
-    axiosInstanceValue.interceptors.request.use(config => {
-        // generate an identifier for each request
-        const requestIdentifier = `${config.url}_${config.method}`;
-        // check if there is already a pending request with the same identifier
+
+    // Request Interceptor
+    instance.interceptors.request.use(config => {
+        // Identifier único por url+method+params+data
+        const reqParams = JSON.stringify(config.params || {});
+        const reqData = JSON.stringify(config.data || {});
+        const requestIdentifier = `${config.url}_${config.method}_${reqParams}_${reqData}`;
+
+        // Cancelar request previa igual
         if (pendingRequests.has(requestIdentifier)) {
             const cancelTokenSource = pendingRequests.get(requestIdentifier);
-            // cancel the previous request
             cancelTokenSource.cancel('Cancelled due to new request');
         }
-        // Interceptor para incluir token automáticamente si existe
+
+        // Token de autenticación
         const token = AuthStore.getState().token;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        // create a new CancelToken
-        const newCancelTokenSource = axios.CancelToken.source();
-        config.cancelToken = newCancelTokenSource.token;
-        // store the new cancel token source in the map
-        pendingRequests.set(requestIdentifier, newCancelTokenSource);
+
+        // Agregar cancel token
+        const cancelTokenSource = axios.CancelToken.source();
+        config.cancelToken = cancelTokenSource.token;
+        pendingRequests.set(requestIdentifier, cancelTokenSource);
+
         return config;
-    }, error => {
-        // return the error if the request fails
-        return Promise.reject(buildAndThrowNewError(error));
-    });
-    // here we set up the Response Interceptor, this logic triggers
-    // before each response from the server comes
-    axiosInstanceValue.interceptors.response.use(response => {
-        // remove completed request from pending map
-        const requestIdentifier = `${response.config.url}_${response.config.method}`;
+    }, error => Promise.reject(buildAndThrowNewError(error)));
+
+    // Response Interceptor
+    instance.interceptors.response.use(response => {
+        // Limpiar request completada
+        const reqParams = JSON.stringify(response.config.params || {});
+        const reqData = JSON.stringify(response.config.data || {});
+        const requestIdentifier = `${response.config.url}_${response.config.method}_${reqParams}_${reqData}`;
         pendingRequests.delete(requestIdentifier);
         return response;
     }, error => {
-        // remove failed request from pending map
         if (error.config) {
-            const requestIdentifier = `${error.config.url}_${error.config.method}`;
+            const reqParams = JSON.stringify(error.config.params || {});
+            const reqData = JSON.stringify(error.config.data || {});
+            const requestIdentifier = `${error.config.url}_${error.config.method}_${reqParams}_${reqData}`;
             pendingRequests.delete(requestIdentifier);
         }
         return Promise.reject(buildAndThrowNewError(error));
     });
-    return axiosInstanceValue;
-}
+
+    return instance;
+};

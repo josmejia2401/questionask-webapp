@@ -1,18 +1,19 @@
 import { axiosInstance } from '../../../services/fetch';
 
 
-export const findStatsQuestion = async (id) => {
+export const findStatsForm = async (formId) => {
     try {
-        const res = await axiosInstance("https://api.jac-box.com").get(`/questionask/api/v1/stats/questions/${id}/stats`);
+        const res = await axiosInstance().get(`/api/v1/stats/forms/${formId}/stats`);
         return res.data;
     } catch (error) {
         throw error;
     }
 }
 
-export const findStatsForm = async (id) => {
+// Estadísticas de pregunta
+export const findStatsQuestion = async (questionId) => {
     try {
-        const res = await axiosInstance("https://api.jac-box.com").get(`/questionask/api/v1/stats/forms/${id}/stats`);
+        const res = await axiosInstance().get(`/api/v1/stats/questions/${questionId}/stats`);
         return res.data;
     } catch (error) {
         throw error;

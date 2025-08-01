@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { findById } from "./api";
 import { ArrowPathIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
-import QuestionStatsChart from "../stats/question-stats-chart";
 import FormStatsChart from "../stats/forms-stats-chart";
 
 const useQuery = () => new URLSearchParams(useLocation().search);
@@ -13,7 +12,6 @@ export default function FormResponses() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState({});
-  const [questionChartExpanded, setQuestionChartExpanded] = useState({});
   const [statsExpanded, setStatsExpanded] = useState(false);
 
   const fetchForm = useCallback(async () => {
@@ -44,14 +42,7 @@ export default function FormResponses() {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const toggleQuestionChart = (questionId) => {
-    setQuestionChartExpanded((prev) => ({
-      ...prev,
-      [questionId]: !prev[questionId],
-    }));
-  };
-
-  const toggleStats = () => setStatsExpanded(v => !v); // <---
+  const toggleStats = () => setStatsExpanded(v => !v);
 
   if (loading) {
     return (
@@ -71,7 +62,7 @@ export default function FormResponses() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border-l-4 border-red-500 p-4">
+      <div className="bg-red-50 border-l-4 border-red-500 p-4 mt-6 rounded shadow-sm max-w-2xl mx-auto">
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
@@ -79,15 +70,16 @@ export default function FormResponses() {
             </svg>
           </div>
           <div className="ml-3">
-            <p className="text-sm text-red-700">
-              Error al cargar respuestas: {error}
-              <button
-                onClick={fetchForm}
-                className="ml-2 text-sm font-medium text-red-600 hover:text-red-500"
-              >
-                Reintentar
-              </button>
+            <p className="text-base text-red-700 font-semibold">
+              Error al cargar respuestas:
             </p>
+            <p className="text-sm text-red-700">{error}</p>
+            <button
+              onClick={fetchForm}
+              className="mt-2 px-3 py-1.5 bg-red-500 text-white rounded hover:bg-red-600 shadow-sm transition"
+            >
+              Reintentar
+            </button>
           </div>
         </div>
       </div>
@@ -95,17 +87,17 @@ export default function FormResponses() {
   }
 
   if (responses.length === 0)
-    return <p className="text-center mt-4 text-gray-600">No hay respuestas aún.</p>;
+    return <p className="text-center mt-8 text-gray-500 text-lg">No hay respuestas aún.</p>;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-6 text-center text-indigo-700">Respuestas del Formulario</h2>
+    <div className="max-w-6xl mx-auto px-2 sm:px-6 py-8">
+      <h2 className="text-3xl font-bold mb-8 text-center text-indigo-700 drop-shadow-sm">Respuestas del Formulario</h2>
 
-      {/* Expand/collapse de estadísticas */}
-      <div className="mb-4">
+      {/* Stats Section */}
+      <div className="mb-6">
         <button
           onClick={toggleStats}
-          className="flex items-center gap-2 font-medium text-indigo-700 hover:underline focus:outline-none"
+          className="flex items-center gap-2 font-semibold text-indigo-700 hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded transition"
           aria-expanded={statsExpanded}
         >
           {statsExpanded
@@ -117,75 +109,76 @@ export default function FormResponses() {
           className={`transition-all duration-300 ${statsExpanded ? "max-h-[1500px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
         >
           {statsExpanded && (
-            <div className="mt-4 mb-8">
+            <div className="mt-4 mb-8 bg-white shadow-lg rounded p-4 border w-full max-w-6xl mx-auto">
               <FormStatsChart formId={id} />
             </div>
           )}
         </div>
       </div>
 
-      <div className="flex justify-end mb-4">
+      {/* Recargar */}
+      <div className="flex items-center justify-end mb-6 w-full">
         <button
           onClick={fetchForm}
-          className="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded hover:bg-indigo-700 transition"
+          className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-base font-semibold rounded shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
         >
-          <ArrowPathIcon className="w-5 h-5 mr-1" aria-hidden="true" />
+          <ArrowPathIcon className="w-5 h-5 mr-2" aria-hidden="true" />
           Recargar
         </button>
       </div>
 
-      <div className="space-y-4">
+      {/* Respuestas */}
+      <div className="flex flex-col gap-8">
         {responses.map((response, idx) => (
-          <div key={response.id} className="bg-white shadow rounded border">
-            <div
+          <div key={response.id} className="bg-white shadow-lg rounded-lg border border-gray-100 transition hover:shadow-xl w-full">
+            <button
               onClick={() => toggleExpand(response.id)}
-              className="cursor-pointer px-4 py-3 flex justify-between items-center hover:bg-gray-50"
+              className="w-full text-left px-6 py-4 flex justify-between items-center hover:bg-gray-50 rounded-t-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+              aria-expanded={expanded[response.id]}
             >
               <div>
-                <p className="text-sm text-gray-500">Respuesta #{idx + 1}</p>
-                <p className="text-xs text-gray-400">{new Date(response.submittedAt).toLocaleString()}</p>
+                <span className="inline-block text-xs px-2 py-1 bg-indigo-100 text-indigo-800 rounded uppercase font-bold tracking-wider mb-1">
+                  Respuesta #{idx + 1}
+                </span>
+                <p className="text-xs text-gray-400 mt-1">
+                  {new Date(response.submittedAt).toLocaleString('es-ES', {
+                    year: "numeric",
+                    month: "short",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })}
+                </p>
               </div>
               {expanded[response.id] ? (
-                <ChevronUpIcon className="w-5 h-5 text-gray-600" />
+                <ChevronUpIcon className="w-6 h-6 text-indigo-600" />
               ) : (
-                <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                <ChevronDownIcon className="w-6 h-6 text-indigo-600" />
+              )}
+            </button>
+
+            <div
+              className={`overflow-hidden transition-all duration-300 ${expanded[response.id] ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}
+            >
+              {expanded[response.id] && (
+                <div className="px-8 pb-6 space-y-4 bg-gray-50 rounded-b-lg">
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                    {response.answers.map((ans) => (
+                      <div key={ans.id} className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm hover:shadow-md transition w-full">
+                        <div className="flex items-center justify-between">
+                          <p className="text-base font-semibold text-gray-700">
+                            {ans.question?.questionText || (
+                              <span className="italic text-gray-400">Pregunta desconocida</span>
+                            )}
+                          </p>
+                        </div>
+                        <p className="text-sm text-gray-800 mt-2">{ans.answerText || <span className="italic text-gray-400">Sin respuesta</span>}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-
-            {expanded[response.id] && (
-              <div className="px-4 pb-4 space-y-3 transition-all duration-200">
-                {response.answers.map((ans) => (
-                  <div key={ans.id} className="bg-gray-100 p-3 rounded">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-700">
-                        {ans.question?.questionText || "Pregunta desconocida"}
-                      </p>
-                      <button
-                        onClick={() => toggleQuestionChart(ans.questionId)}
-                        className="flex items-center text-indigo-600 text-xs hover:underline focus:outline-none ml-2"
-                        type="button"
-                      >
-                        {questionChartExpanded[ans.questionId] ? (
-                          <>
-                            <ChevronUpIcon className="w-4 h-4" /> Ocultar gráfico
-                          </>
-                        ) : (
-                          <>
-                            <ChevronDownIcon className="w-4 h-4" /> Ver gráfico
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <p className="text-sm text-gray-800 mt-1">{ans.answerText || "Sin respuesta"}</p>
-                    {questionChartExpanded[ans.questionId] && ans.questionId && (
-                      <div className="mt-4">
-                        <QuestionStatsChart questionId={ans.questionId} />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         ))}
       </div>
