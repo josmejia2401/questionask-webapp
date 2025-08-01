@@ -15,6 +15,7 @@ import {
     Pie,
     Cell,
 } from "recharts";
+import { AuthStore } from "../../store";
 
 // Iconos SVG profesionales, integrados aquí mismo
 function DocumentTextIcon(props) {
@@ -80,7 +81,7 @@ function ClockIcon(props) {
 const COLORS = [
     "#2563eb", "#10b981", "#6366f1", "#f59e42", "#ef4444", "#a21caf", "#e11d48", "#f472b6"
 ];
-const USER_ID = "40731a51-41c8-4597-a1f4-868802b3fe90";
+const USER_ID = AuthStore.getState().tokenInfo.keyid;
 
 export default function Dashboard() {
     const [dashboardStats, setDashboardStats] = useState(null);
