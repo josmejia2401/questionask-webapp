@@ -6,6 +6,8 @@ import Textarea from "../../../components/textarea";
 import CheckboxGroup from "../../../components/checkbox-group";
 import RadioGroup from "../../../components/radio-group";
 import StarRating from "../../../components/star-rating";
+import DateField from "../../../components/form-builder/fields/date-field";
+import TimeField from "../../../components/form-builder/fields/time-field";
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
@@ -93,7 +95,7 @@ export default function FormQuestions() {
             const res = await saveResponse(payload);
             if (res.code !== 201) throw new Error(res.data.message);
 
-            setSuccess("Formulario guardado correctamente.");
+            setSuccess("¡Gracias! El formulario fue enviado correctamente.");
 
             const reset = {};
             Object.keys(answers).forEach(k => {
@@ -144,11 +146,12 @@ export default function FormQuestions() {
         }
         return true;
     };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
                 <svg
-                    className="animate-spin h-10 w-10 text-indigo-600"
+                    className="animate-spin h-10 w-10 text-blue-700"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -171,70 +174,138 @@ export default function FormQuestions() {
         );
     }
 
+    // Progreso en %
+    const numRespondidas = Object.values(answers).filter(v => (Array.isArray(v) ? v.length > 0 : v)).length;
+    const total = formData.questions?.length || 0;
+    const progress = total ? Math.round((numRespondidas / total) * 100) : 0;
+
     return (
-        <div className="max-w-3xl mx-auto px-4 py-6">
-            <div className="flex items-center gap-3 mb-4">
-                <svg className="w-8 h-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2a4 4 0 014-4h1a4 4 0 014 4v2m-5-10a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <h2 className="text-2xl font-bold text-indigo-800">{formData.title}</h2>
+        <div className="max-w-4xl mx-auto px-4 py-10 animate-fade-in">
+            {/* Encabezado visual */}
+            <div className="flex flex-col items-center mb-10">
+                {/* Nuevo icono: documento profesional */}
+                <div className="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-full shadow">
+                    {/* Heroicons: DocumentText */}
+                    <svg className="w-10 h-10 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                            d="M12 20h9M12 4h9M4 4h.01M4 20h.01M4 12h16" />
+                    </svg>
+                </div>
+                <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow mt-4 text-center">
+                    {formData.title}
+                </h1>
+                {/* Subtítulo */}
+                <p className="text-lg text-gray-500 mt-2 text-center">
+                    {formData.subtitle || "Por favor responde las siguientes preguntas para ayudarnos a mejorar."}
+                </p>
+                {/* Estado público/privado */}
+                {formData.isPublic && (
+                    <span className="mt-2 px-3 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-700 shadow">
+                        Formulario público
+                    </span>
+                )}
+                <hr className="my-6 border-gray-200 w-full" />
             </div>
 
+            {/* Nota de privacidad */}
+            <div className="bg-blue-50 border-l-4 border-blue-300 p-3 rounded mb-6 text-sm text-blue-700 shadow-sm text-center">
+                Tus respuestas son anónimas y confidenciales.
+            </div>
+
+            {/* Descripción del formulario, destacada y color cambiado */}
             {formData.description && (
-                <p className="text-gray-600 mb-6 text-md">{formData.description}</p>
+                <div className="mb-8">
+                    <div className="bg-white rounded shadow-md p-4 text-gray-600 text-center text-base border border-gray-100">
+                        {formData.description}
+                    </div>
+                </div>
             )}
 
-            <div className="text-sm text-gray-500 mb-4 text-right">
-                {Object.values(answers).filter(v => (Array.isArray(v) ? v.length > 0 : v)).length} / {formData.questions.length} preguntas respondidas
-            </div>
+            {/* Progreso visual */}
+            {total > 0 && (
+                <div className="flex items-center justify-between mb-7">
+                    <div className="w-full h-3 bg-gray-100 rounded-full mr-4">
+                        <div
+                            style={{ width: `${progress}%` }}
+                            className={`h-3 bg-blue-700 rounded-full transition-all duration-500`}
+                        ></div>
+                    </div>
+                    <span className="text-sm font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded shadow">
+                        {numRespondidas} / {total} respondidas ({progress}%)
+                    </span>
+                </div>
+            )}
 
-            {error && <p className="text-red-600 mb-4">{error}</p>}
+            {/* Mensajes */}
+            {error && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded shadow-sm text-red-800 font-medium animate-fade-in">
+                    {error}
+                </div>
+            )}
 
             {success && (
-                <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded">
-                    <p className="text-green-800 font-medium mb-2">{success}</p>
-                    <div className="flex gap-4">
+                <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded shadow-md animate-fade-in text-center">
+                    <p className="text-green-800 font-bold mb-3 text-lg">{success}</p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <button
                             onClick={handleResetForm}
-                            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+                            className="px-5 py-2 bg-blue-700 text-white rounded font-semibold shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition flex items-center justify-center gap-2"
                         >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v6h6M20 20v-6h-6" />
+                            </svg>
                             Enviar nueva respuesta
                         </button>
                         <button
                             onClick={() => navigate("https://questionask.jac-box.com/index")}
-                            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition"
+                            className="px-5 py-2 bg-gray-500 text-white rounded font-semibold shadow hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition flex items-center justify-center gap-2"
                         >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                            </svg>
                             Volver al inicio
                         </button>
                     </div>
                 </div>
             )}
 
-
-            {!success && (<div>
-                <div className="space-y-6">
+            {!success && (
+                <form
+                    onSubmit={e => { e.preventDefault(); handleSubmit(); }}
+                    className="space-y-8"
+                    autoComplete="off"
+                >
                     {formData.questions.map((q) => (
-                        <div key={q.id} className="border p-4 rounded-md shadow-sm bg-white transition transform hover:scale-[1.01]">
+                        <div
+                            key={q.id}
+                            className="border p-5 rounded-xl shadow-md bg-white transition-transform transform hover:scale-[1.01] hover:shadow-lg"
+                        >
                             {renderInput(q, answers[q.id], (val) => handleChange(q, val))}
                         </div>
                     ))}
-                </div>
-
-                <div className="mt-6">
-                    <button
-                        onClick={handleSubmit}
-                        disabled={!isFormValid}
-                        className={`px-4 py-2 rounded text-white transition ${isFormValid ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 cursor-not-allowed'
-                            }`}
-                    >
-                        Enviar formulario
-                    </button>
-                </div>
-            </div>)}
+                    <div className="mt-7 flex justify-end">
+                        <button
+                            type="submit"
+                            disabled={!isFormValid}
+                            className={`px-6 py-3 rounded-lg text-white font-semibold transition flex items-center gap-2
+                                ${isFormValid
+                                    ? 'bg-blue-700 hover:bg-blue-800 shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400'
+                                    : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Enviar formulario
+                        </button>
+                    </div>
+                </form>
+            )}
         </div>
     );
 }
 
+// Input renderer, con mejoras visuales y props
 function renderInput(question, value, onChange) {
     switch (question.type) {
         case 'short':
@@ -243,8 +314,8 @@ function renderInput(question, value, onChange) {
                     label={question.questionText}
                     type="text"
                     value={value || ''}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="w-full border px-3 py-2 rounded"
+                    onChange={e => onChange(e.target.value)}
+                    className="w-full border border-blue-200 px-4 py-2 rounded-xl bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300 text-base"
                     maxLength={255}
                     required={question.required}
                 />
@@ -256,8 +327,8 @@ function renderInput(question, value, onChange) {
                     required={question.required}
                     rows="4"
                     value={value || ''}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="w-full border px-3 py-2 rounded"
+                    onChange={e => onChange(e.target.value)}
+                    className="w-full border border-gray-200 px-4 py-2 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 text-base resize-none"
                     maxLength={2000}
                 />
             );
@@ -285,31 +356,27 @@ function renderInput(question, value, onChange) {
             );
         case 'date':
             return (
-                <div className="mb-4">
-                    <label className="block font-semibold mb-2">
-                        {question.questionText} {question.required && <span className="text-red-500">*</span>}
-                    </label>
-                    <input
-                        type="date"
-                        value={value || ''}
-                        onChange={(e) => onChange(e.target.value)}
-                        className="border px-3 py-2 rounded"
-                    />
-                </div>
+                <DateField
+                    label={question.questionText}
+                    name={`date-${question.id}`}
+                    type="date"
+                    value={value || ''}
+                    onChange={e => onChange(e.target.value)}
+                    className="border border-blue-200 px-3 py-2 rounded-xl bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300 text-base"
+                    required={question.required}
+                />
             );
         case 'time':
             return (
-                <div className="mb-4">
-                    <label className="block font-semibold mb-2">
-                        {question.questionText} {question.required && <span className="text-red-500">*</span>}
-                    </label>
-                    <input
-                        type="time"
-                        value={value || ''}
-                        onChange={(e) => onChange(e.target.value)}
-                        className="border px-3 py-2 rounded"
-                    />
-                </div>
+                <TimeField
+                    label={question.questionText}
+                    type="time"
+                    name={`time-${question.id}`}
+                    value={value || ''}
+                    onChange={e => onChange(e.target.value)}
+                    className="border border-gray-200 px-3 py-2 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 text-base"
+                    required={question.required}
+                />
             );
         case 'rating':
             return (

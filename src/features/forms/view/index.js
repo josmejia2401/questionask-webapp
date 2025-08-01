@@ -3,7 +3,7 @@ import "./styles.css";
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { findAll, deleteById } from "./api";
 import FormCard from './form-item';
-import ButtonComponent from "../../../components/button-secondary";
+import ButtonComponent from "../../../components/button";
 
 const FormList = () => {
     const [data, setData] = useState([]);

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { findUserDashboard, findStatsUser } from "./api";
 import {
-    BarChart,
-    Bar,
     XAxis,
     YAxis,
     Tooltip,

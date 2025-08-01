@@ -8,7 +8,7 @@ import {
     ArrowPathIcon
 } from '@heroicons/react/24/solid';
 
-import ButtonComponent from '../../../components/button-secondary';
+import ButtonComponent from '../../../components/button';
 import { useLocation } from 'react-router-dom';
 import InputTitle from '../../../components/input-title';
 import TextareaTitle from '../../../components/input-title';

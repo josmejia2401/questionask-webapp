@@ -1,8 +1,27 @@
 import React from 'react';
 import './styles.css';
 
+/**
+ * Botón reutilizable con icono dinámico, loading spinner y variantes.
+ *
+ * Props:
+ * - type: 'button' | 'submit' | 'reset'
+ * - variant: 'primary' | 'secondary' | 'tertiary'
+ * - disabled: boolean
+ * - loading: boolean
+ * - size: 'sm' | 'md' | 'lg'
+ * - fullWidth: boolean
+ * - icon: string (clase de icono) | ReactNode (elemento)
+ * - iconClassName: string (clases extra para el icono)
+ * - text: string (label del botón, alternativo a children)
+ * - textLoading: string (texto durante loading)
+ * - showText: boolean (mostrar texto durante loading)
+ * - className: string (clases extra)
+ * - children: contenido extra
+ */
 function Button({
     children,
+    text = '',
     type = 'button',
     variant = 'primary',
     disabled = false,
@@ -10,13 +29,16 @@ function Button({
     size = 'md',
     className = '',
     fullWidth = false,
+    icon,                // NUEVO: clase del icono (ej: "bx bx-plus") o componente React
+    iconClassName = '',  // NUEVO: clases extra para el <i>
+    textLoading = 'Procesando...',
+    showText = false,
     ...props
 }) {
-
     const isDisabled = disabled || loading;
 
     const baseStyle =
-        'inline-flex items-center justify-center font-medium rounded focus:outline-none transition';
+        'inline-flex items-center justify-center font-medium rounded focus:outline-none transition gap-2';
 
     const variantStyles = {
         primary: 'bg-indigo-700 text-white hover:bg-indigo-800',
@@ -49,29 +71,47 @@ function Button({
             disabled={isDisabled}
             {...props}
         >
-            {loading && (
-                <svg
-                    className="animate-spin h-5 w-5 mr-2 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                >
-                    <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                    />
-                    <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8H4z"
-                    />
-                </svg>
+            {loading ? (
+                <div className="flex items-center gap-2">
+                    <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                        />
+                        <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8H4z"
+                        />
+                    </svg>
+                    {showText && (
+                        <span role="status">{textLoading}</span>
+                    )}
+                </div>
+            ) : (
+                <div className="flex items-center gap-2">
+                    {icon &&
+                        (typeof icon === 'string' ? (
+                            <i className={`${icon} ${iconClassName}`} aria-hidden="true"></i>
+                        ) : (
+                            icon
+                        ))
+                    }
+                    <span>
+                        {children || text}
+                    </span>
+                </div>
             )}
-            {children}
         </button>
     );
 }
